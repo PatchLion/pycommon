@@ -16,6 +16,7 @@ BOT_NAME = 'meizitu'
 SPIDER_MODULES = ['meizitu.spiders']
 NEWSPIDER_MODULE = 'meizitu.spiders'
 
+DBFILE = "meizitu.db"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = randomUserAgent()
