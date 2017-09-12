@@ -3,7 +3,7 @@
 
 import urllib.request, urllib.parse, urllib.error
 import http.cookiejar
-from commons import randomUserAgent
+from Commons import randomUserAgent
 
 LOGIN_URL = 'http://acm.hit.edu.cn/hoj/system/login'
 values = {'user': '******', 'password': '******'} # , 'submit' : 'Login'
