@@ -8,8 +8,11 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
+import sys
 
-from MyCommons import randomUserAgent
+sys.path.insert(0,'../../..')
+
+import MyCommons
 
 BOT_NAME = 'meizitu'
 
@@ -19,7 +22,7 @@ NEWSPIDER_MODULE = 'meizitu.spiders'
 DBFILE = "meizitu.db"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = randomUserAgent()
+USER_AGENT = MyCommons.randomUserAgent()
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True

@@ -1,4 +1,4 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from .UserAgentStrings import randomUserAgent
+from MyCommons.UserAgentStrings import randomUserAgent
