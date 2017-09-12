@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from sqlalchemy import *
-from SqlAlchemy.test.tables import *
-from SqlAlchemy.test.settings import *
-from SqlAlchemy.DBOperator import *
+from MySqlAlchemy.test.tables import *
+from MySqlAlchemy.test.settings import *
+from MySqlAlchemy.DBOperator import *
 import os
 
 session = createEngine("sqlite:///" + DB_FILE_PATH, not os.path.exists(DB_FILE_PATH))

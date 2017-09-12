@@ -28,7 +28,7 @@ class MeizituSpiderMiddleware(object):
         return None
 
     def process_spider_output(self, response, result, spider):
-        # Called with the results returned from the Spider, after
+        # Called with the results returned from the MySpider, after
         # it has processed the response.
 
         # Must return an iterable of Request, dict or Item objects.
@@ -53,4 +53,4 @@ class MeizituSpiderMiddleware(object):
             yield r
 
     def spider_opened(self, spider):
-        spider.logger.info('Spider opened: %s' % spider.name)
+        spider.logger.info('MySpider opened: %s' % spider.name)

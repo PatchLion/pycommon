@@ -1,5 +1,5 @@
 from sqlalchemy import *
-from SqlAlchemy.EngineCreator import *
+from MySqlAlchemy.EngineCreator import *
 
 '''查询记录'''
 def records(session, type, cond = None):
