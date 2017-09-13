@@ -51,10 +51,10 @@ class MayaSpider(object):
         rows = self._webdriver.find_elements_by_xpath("//div[@class='maintable']/div/table[@class='row']")
         for row in rows:
             print(row)
-            title_elm = row.find_element_by_xpath("//td[@class='f_title']/a")
+            title_elm = row.find_element_by_xpath("/td[@class='f_title']/a")
             if title_elm is not None:
-                title = title_elm.find_element_by_xpath("string()")
-                url = title_elm.find_element_by_xpath("@href")
+                title = title_elm.text
+                url = title_elm.get_attribute("href")
                 print(title, url)
 
     def parseImage(self):
