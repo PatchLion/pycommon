@@ -1,0 +1,6 @@
+{
+  "domains": ["xxxxx.com"],
+  "start_urls": ["http://www.xxxxxx.com/forumdisplay.php?fid=5"],
+  "user": "xxxxxx",
+  "password": "xxxxx"
+}
