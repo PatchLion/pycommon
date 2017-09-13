@@ -11,3 +11,12 @@ def checkFileName(filename):
     for c in INVALID_CHARS:
         temp = temp.replace(c, "")
     return temp
+
+def spliturl(url):
+    res = []
+    temp = os.path.split(url)
+    while len(temp[0]) != 0:
+        res.append(temp[1])
+        temp = os.path.split(temp[0])
+    res.append(temp[1])
+    return res

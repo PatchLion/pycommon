@@ -14,7 +14,7 @@ class Downloader(object):
         super(Downloader, self).__init__()
         if not os.path.exists(IMAGE_DIR):
             os.mkdir(IMAGE_DIR)
-        self._semaphore = threading.Semaphore(4)
+        self._semaphore = threading.Semaphore(10)
         self._started = False
         self._threads = None
 
@@ -50,7 +50,7 @@ class Downloader(object):
                             print("Write to:", filepath)
                     else:
                         print("Request error code [{0}]! {1}".format(req.status_code, filepath))
-                except ex as e:
+                except Exception as e:
                     print(e)
 
             else:
