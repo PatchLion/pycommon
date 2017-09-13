@@ -6,6 +6,6 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 
-class MzituPipeline(object):
+class SpidersPipeline(object):
     def process_item(self, item, spider):
         return item

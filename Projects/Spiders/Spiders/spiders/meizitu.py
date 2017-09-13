@@ -2,8 +2,8 @@
 import scrapy
 from scrapy import Selector
 from scrapy import Request
-from Projects.Spiders.meizitu.datas.tables import *
-from Projects.Spiders.meizitu.datas.MeizituSession import meizituSession
+from Projects.Spiders.Spiders.datas.PicturesTables import *
+from Projects.Spiders.Spiders.datas.PicturesSession import session
 import MySqlAlchemy
 
 class MeizituPagesSpider(scrapy.Spider):
@@ -26,13 +26,13 @@ class MeizituPagesSpider(scrapy.Spider):
                 title = page.xpath('a/b/text()').extract()[0].lower().strip()
 
 
-            if not MySqlAlchemy.isRecordExist(meizituSession, Pages, Pages.page_url == page_url):
+            if not MySqlAlchemy.isRecordExist(session, Pages, Pages.page_url == page_url):
                 results.append(Pages(page_url=page_url, title=title))
                 print(title, page_url)
                 yield Request(page_url, callback=self.readImage)
 
         if len(results) > 0:
-            MySqlAlchemy.addOrRecord(meizituSession, results)
+            MySqlAlchemy.addOrRecord(session, results)
 
         nexthtml = sel.xpath("//div[@id='wp_page_numbers']/ul/li/a[text()='下一页']/@href").extract()
 
@@ -56,8 +56,8 @@ class MeizituPagesSpider(scrapy.Spider):
             image_url = image.xpath('@src').extract()[0].lower().strip()
             print(image_url)
             page_url = url_string
-            if not MySqlAlchemy.isRecordExist(meizituSession, ImageUrls, ImageUrls.image_url == image_url):
+            if not MySqlAlchemy.isRecordExist(session, ImageUrls, ImageUrls.image_url == image_url):
                 results.append(ImageUrls(page_url=page_url, image_url=image_url))
 
         if len(results) > 0:
-            MySqlAlchemy.addOrRecord(meizituSession, results)
+            MySqlAlchemy.addOrRecord(session, results)

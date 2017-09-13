@@ -8,5 +8,7 @@
 import scrapy
 
 
-class MeizituPageItem(scrapy.Item):
+class SpidersItem(scrapy.Item):
+    # define the fields for your item here like:
+    # name = scrapy.Field()
     pass

@@ -8,7 +8,7 @@
 from scrapy import signals
 
 
-class MeizituSpiderMiddleware(object):
+class SpidersSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the spider middleware does not modify the
     # passed objects.
@@ -28,7 +28,7 @@ class MeizituSpiderMiddleware(object):
         return None
 
     def process_spider_output(self, response, result, spider):
-        # Called with the results returned from the MySpider, after
+        # Called with the results returned from the Spider, after
         # it has processed the response.
 
         # Must return an iterable of Request, dict or Item objects.
@@ -53,4 +53,4 @@ class MeizituSpiderMiddleware(object):
             yield r
 
     def spider_opened(self, spider):
-        spider.logger.info('MySpider opened: %s' % spider.name)
+        spider.logger.info('Spider opened: %s' % spider.name)

@@ -2,8 +2,8 @@
 import scrapy
 from scrapy import Selector
 from scrapy import Request
-from Projects.Spiders.mzitu.datas.tables import *
-from Projects.Spiders.mzitu.datas.MzituSession import mzituSession
+from Projects.Spiders.Spiders.datas.PicturesTables import *
+from Projects.Spiders.Spiders.datas.PicturesSession import session
 import MySqlAlchemy
 import os
 
@@ -21,12 +21,12 @@ class MzituPagesSpider(scrapy.Spider):
             title = page.xpath("string(.)").extract()[0]
             url = page.xpath("@href").extract()[0]
 
-            if not MySqlAlchemy.isRecordExist(mzituSession, Pages, Pages.page_url == url):
+            if not MySqlAlchemy.isRecordExist(session, Pages, Pages.page_url == url):
                 results.append(Pages(page_url=url, title=title))
                 print(title, url)
             yield Request(url, callback=self.page)
         if len(results) > 0:
-            MySqlAlchemy.addOrRecord(mzituSession, results)
+            MySqlAlchemy.addOrRecord(session, results)
 
         nextPageNode =sel.xpath("//a[@class='next page-numbers']/@href").extract()
         if len(nextPageNode) > 0:
@@ -57,8 +57,8 @@ class MzituPagesSpider(scrapy.Spider):
         sel = Selector(response)
         image_url = sel.xpath("//div[@class='main-image']/p/a/img/@src").extract()[0]
         print(image_url)
-        if not MySqlAlchemy.isRecordExist(mzituSession, ImageUrls, ImageUrls.image_url == image_url):
-            MySqlAlchemy.addOrRecord(mzituSession, ImageUrls(page_url=page_url, image_url=image_url))
+        if not MySqlAlchemy.isRecordExist(session, ImageUrls, ImageUrls.image_url == image_url):
+            MySqlAlchemy.addOrRecord(session, ImageUrls(page_url=page_url, image_url=image_url))
 
         nextPageNode = sel.xpath("//div[@class='pagenavi']/a")
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Scrapy settings for mzitu project
+# Scrapy settings for Spiders project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -9,17 +9,16 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 import sys
-
 sys.path.insert(0,'../../..')
 
 import MyCommons
 
-BOT_NAME = 'mzitu'
+BOT_NAME = 'Spiders'
 
-SPIDER_MODULES = ['mzitu.spiders']
-NEWSPIDER_MODULE = 'mzitu.spiders'
-DBFILE = "mzitu.db"
+SPIDER_MODULES = ['Spiders.spiders']
+NEWSPIDER_MODULE = 'Spiders.spiders'
 
+PICTURE_DBFILE_NAME = "pictures.db"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = MyCommons.randomUserAgent()
@@ -53,13 +52,13 @@ COOKIES_ENABLED = False
 # Enable or disable spider middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    'mzitu.middlewares.MzituSpiderMiddleware': 543,
+#    'Spiders.middlewares.SpidersSpiderMiddleware': 543,
 #}
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #DOWNLOADER_MIDDLEWARES = {
-#    'mzitu.middlewares.MyCustomDownloaderMiddleware': 543,
+#    'Spiders.middlewares.MyCustomDownloaderMiddleware': 543,
 #}
 
 # Enable or disable extensions
@@ -71,7 +70,7 @@ COOKIES_ENABLED = False
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 #ITEM_PIPELINES = {
-#    'mzitu.pipelines.MzituPipeline': 300,
+#    'Spiders.pipelines.SpidersPipeline': 300,
 #}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
