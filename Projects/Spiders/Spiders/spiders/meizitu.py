@@ -32,6 +32,7 @@ class MeizituPagesSpider(PicturesSpiderBase):
 
     #parent_page_url
     def parentPageUrl(self, url):
+        #print("-----", url)
         return url.strip().lower()
 
     #images

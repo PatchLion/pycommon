@@ -5,6 +5,7 @@ from scrapy import Request
 from Projects.Spiders.Spiders.datas.PicturesTables import *
 from Projects.Spiders.Spiders.datas.PicturesSession import session
 import MySqlAlchemy
+import os
 
 class PicturesSpiderBase(scrapy.Spider):
     #pages
@@ -81,7 +82,7 @@ class PicturesSpiderBase(scrapy.Spider):
                 if not MySqlAlchemy.isRecordExist(session, ImageUrls, ImageUrls.image_url == image_url):
                     results.append(ImageUrls(page_url=page_url, image_url=image_url))
             else:
-                print("Invaild URL when image parsed! Image url = {0} Page url = {1}".format(image_url, page_url))
+                print("Invaild URL when image parsed!nvaild URL when image parsed! Image url = {0} Page url = {1}".format(image_url, page_url))
 
         if len(results) > 0:
             MySqlAlchemy.addOrRecord(session, results)

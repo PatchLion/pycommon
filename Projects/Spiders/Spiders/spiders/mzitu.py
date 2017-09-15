@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from .PicturesSpiderBase import PicturesSpiderBase
+import os
 
 class MzituPagesSpider(PicturesSpiderBase):
     name = 'mzitu'
