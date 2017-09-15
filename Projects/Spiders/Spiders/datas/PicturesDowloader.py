@@ -17,28 +17,51 @@ class Downloader(object):
         self._semaphore = threading.Semaphore(10)
         self._started = False
         self._threads = None
+        self._timer = threading.Timer(1, self.checkState)
 
     def start(self, infos):
         if self._started:
             print("Downloader started!")
             return
-        self._threads = [threading.Thread(target=self.downloadFun, args=[page_url, info]).start() for page_url, info in infos.items()]
+        self._threads = [threading.Thread(target=self.downloadFun, args=[page_url, info]) for page_url, info in infos.items()]
+        for thread in self._threads:
+            thread.start()
         self._started = True
+        self._timer.start()
 
     def stop(self):
         self._started = False
+        self._timer.cancel()
+
+    @classmethod
+    def filePath(cls, url, parentdir):
+        path = IMAGE_DIR + "/" + checkDirName(parentdir)
+        if not os.path.exists(path):
+            os.mkdir(path)
+        filename = os.path.split(url)[1]
+        filepath = path + "/" + filename
+        return filepath
+
+    def checkState(self):
+        print("Checking......")
+        if self.allThreadFinished():
+            print("All thread finished!!")
+            self._timer.cancel()
+        else:
+            self._timer = threading.Timer(1, self.checkState)
+            self._timer.start()
+
+
+    def allThreadFinished(self):
+        states = [thread.is_alive() for thread in self._threads]
+        return not (True in states)
 
     def downloadFun(self, page_url, info):
         #print(page_url, info)
         self._semaphore.acquire()
 
-        path = IMAGE_DIR + "/" + checkFileName(info[0])
-        if not os.path.exists(path):
-            os.mkdir(path)
-
         for url in info[1:]:
-            filename = os.path.split(url)[1]
-            filepath = path + "/" + filename
+            filepath = Downloader.filePath(url, info[0])
             if not os.path.exists(filepath):
                 headers = {'User-Agent': randomUserAgent(), "Referer": url}
                 try:
@@ -53,13 +76,16 @@ class Downloader(object):
                 except Exception as e:
                     print(e)
 
-            else:
-                print("{0} Existed!".format(filepath))
         self._semaphore.release()
 
 if "__main__" == __name__:
     allImages = allImageFromDB()
-    downloader = Downloader()
-    downloader.start(allImages)
+
+    print("------->", len(allImages))
+
+    if len(allImages) > 0:
+        downloader = Downloader()
+        downloader.start(allImages)
+
     loop = asyncio.get_event_loop()
     loop.run_forever()

@@ -31,6 +31,7 @@ class MmjpgSpider(PicturesSpiderBase):
     #parent_page_url
     def parentPageUrl(self, url):
         page_url = ""
+        res = os.path.split(url)
         if len(res) == 5:
             page_url = os.path.split(url)[0]
         elif len(res) == 4:
