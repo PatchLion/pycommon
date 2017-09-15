@@ -5,7 +5,7 @@ import os
 
 INVALID_CHARS = '\\/:*?"<>|，'
 
-def checkFileName(filename):
+def checkDirName(filename):
     temp = filename
     temp = temp.strip()
     for c in INVALID_CHARS:
@@ -20,3 +20,4 @@ def spliturl(url):
         temp = os.path.split(temp[0])
     res.append(temp[1])
     return res
+	
