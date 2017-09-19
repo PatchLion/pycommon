@@ -9,7 +9,7 @@ def index():
 @app.route('/wechat/check', methods=['GET', 'POST'])
 def wechat_check():
     if request.method == 'POST':
-        wechat.parse_data(request.data, msg_signature=None, timestamp=None, nonce=None)
+        wechat.parse_data(request.data)
         content = wechat.message.content  # 对应于 XML 中的 Content
         wechat.response_text("你说的是:" + content, escape=False)
     else:
