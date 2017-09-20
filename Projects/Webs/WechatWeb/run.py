@@ -4,6 +4,9 @@
 from app import app
 from app import wechat
 
+from wechat_sdk.exceptions import OfficialAPIError
+
+print(wechat.access_token)
 menu = {
      "button":[
      {
@@ -17,7 +20,9 @@ menu = {
           "key":"LOGIN"
       }]
 }
-
-wechat.create_menu(menu)
+try:
+     wechat.create_menu(menu)
+except  OfficialAPIError as e:
+     print(e)
 
 app.run(host='0.0.0.0', debug=True, port=80)
