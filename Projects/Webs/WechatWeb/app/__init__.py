@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from flask import Flask
 from wechat_sdk import WechatConf
 from wechat_sdk import WechatBasic

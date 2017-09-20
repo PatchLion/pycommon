@@ -2,4 +2,5 @@
 # -*- coding: utf-8 -*-
 
 from Projects.Spiders.Spiders.datas.PicturesTables import *
-from Projects.Spiders.Spiders.datas.PicturesSession import session
+from Projects.Spiders.Spiders.datas.PicturesSession import session, allImageFromDB
+

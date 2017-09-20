@@ -8,8 +8,8 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
-import sys
-sys.path.insert(0,'../../..')
+import sys,os
+sys.path.insert(0, os.path.split(__file__)[0] + './../../..')
 
 import MyCommons
 

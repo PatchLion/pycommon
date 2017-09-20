@@ -35,3 +35,11 @@ def allImageFromDB():
                 res[url] = [pages[url]]
             res[url].append(imageurl.image_url)
     return res
+
+#所有图片URL
+def allImageListFromDB():
+
+    imageUrls = records(session, ImageUrls)
+    res = [info.image_url for info in imageUrls]
+
+    return res
