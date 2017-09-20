@@ -16,7 +16,7 @@ def drop_db(engine):
 
 #返回session, engine
 def createEngine(dbstring, reset = False):
-    engine = create_engine(dbstring)
+    engine = create_engine(dbstring, echo=True)
     #engine = create_engine(dbstring, echo=True)
     DBSession = sessionmaker(bind=engine)
     if reset:
