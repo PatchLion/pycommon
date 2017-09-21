@@ -2,19 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import json
+from .StateCodes import *
+import hashlib
+import uuid
+import time
 
-StateCode_Success = 0
-StateCode_UserExist = 1
-StateCode_UnsupportMethod = 2
-StateCode_InvaildParam = 3
-StateCode_FailedCreateUser = 4
-
-
-StateCodeDescriptions = {StateCode_Success : "成功",
-                         StateCode_UserExist : "用户已存在",
-                         StateCode_UnsupportMethod : "不支持的方法",
-                         StateCode_InvaildParam : "无效的参数",
-                         StateCode_FailedCreateUser: "创建用户失败"}
 
 def codeString(code):
     if code in StateCodeDescriptions.keys():
@@ -28,10 +20,30 @@ def buildStandResponse(code, data = None):
     respone["state"] = code
     respone["message"] = codeString(code)
     respone["data"] = data
-    return json.dumps(respone)
+    return json.dumps(respone,ensure_ascii=False)
 
-def checkStringVaild(str):
+def checkDataVaild(str):
     return (str is not None) and (len(str) > 0)
 
-def checkPasswordInvaild(pwd):
-    return True
+
+
+
+def stringMD5(str):
+    md5 = hashlib.md5()
+    md5.update(str.encode('utf-8'))
+    pwdmd5 = md5.hexdigest()
+    return pwdmd5
+
+
+def createUuid():
+    uid = uuid.uuid4()
+    return uid.hex
+
+def currentTimeStamp():
+    return int(time.time())
+
+def seconds(sec, min, hour, day):
+    daysec = day * 24 * 60 * 60
+    hoursec = hour * 60 * 60
+    minsec = min * 60
+    return daysec + hoursec + minsec + sec

@@ -55,8 +55,7 @@ class User(TableBase):
 class Tokens(TableBase):
     __tablename__ = "usertokens"
 
-    id = Column(INTEGER(), primary_key=True) #id
-    user_id = Column(String(256), ForeignKey('user.user_id'), unique=True)  #用户ID
+    user_id = Column(String(256), primary_key=True)  #用户ID
     token = Column(String(256), nullable=False, unique=True)  #token
     timestamp = Column(String(256), nullable=False)  #过期时间戳
 
