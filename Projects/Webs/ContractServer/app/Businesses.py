@@ -10,31 +10,36 @@ from Projects.Webs.ContractServer.database.ContractDatabase import *
 from MySqlAlchemy.DBOperator import *
 
 #args不为None时，证明已经通过参数验证, 外部调用请勿传args
-def doResponse(methods=["POST"]):
-    def _doResponse(func):
-        def wrapper(request,args):
-            if request.method not in methods:
-                if "POST" == request.method:
-                    json_data = request.get_data()
-                    if checkDataVaild(json_data):
-                        try:
-                            args = json.loads(json_data)
-                            return func(None, args)
-                        except JSONDecodeError as e:
-                            return buildStandResponse(StateCode_InvaildDataFormat)
-                    else:
-                        return buildStandResponse(StateCode_InvaildParam)
-                elif "GET" == request.method:
-                    args = request.args
-                    return func(None, args)
-            else:
-                return buildStandResponse(StateCode_UnsupportMethod)
-        return wrapper
-    return _doResponse
+
+def doResponse(func):
+    def wrapper(request,args):
+        supports_methods = ["POST", "GET"]
+        print(request.method)
+        if request.method in supports_methods:
+            if "POST" == request.method:
+                json_data = request.get_data()
+                print("POST json data:", json_data)
+                if checkDataVaild(json_data):
+                    try:
+                        args = json.loads(json_data)
+                        #print("POST args:", args)
+                        return func(None, args)
+                    except JSONDecodeError as e:
+                        return buildStandResponse(StateCode_InvaildDataFormat)
+                else:
+                    return buildStandResponse(StateCode_InvaildParam)
+            elif "GET" == request.method:
+                args = request.args
+                print("GET args:", args)
+                return func(None, args)
+        else:
+            return buildStandResponse(StateCode_UnsupportMethod)
+    return wrapper
 
 
-@doResponse(["POST"])
+@doResponse
 def doRegister(request, args=None):
+    print("1")
     if args is not None:
         user = args.get("user", "")
         pwd = args.get("pwd", "")
@@ -64,7 +69,7 @@ def doRegister(request, args=None):
             return buildStandResponse(StateCode_InvaildParam)
 
 
-@doResponse(["POST"])
+@doResponse
 def doUserLogin(request, args=None):
     if args is not None:
         user = args.get("user", "")

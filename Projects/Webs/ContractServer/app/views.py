@@ -9,12 +9,12 @@ def index():
     return "Welcome to ContractServer!"
 
 # 注册用户
-@app.route('/api/user/register')
+@app.route('/api/user/register', methods=["POST"])
 def regist():
     return doRegister(request, None)
 
 # 登录
-@app.route('/api/user/login')
+@app.route('/api/user/login', methods=["POST"])
 def login():
     return doUserLogin(request, None)
 
