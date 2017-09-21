@@ -5,7 +5,7 @@ from Projects.Webs.ContractServer.settings import *
 from Projects.Webs.ContractServer.database import TableBase
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from sqlalchemy import Column, String, INTEGER, DATE, ForeignKey, Float, DATETIME, BOOLEAN
+from sqlalchemy import Column, String, INTEGER, ForeignKey, Float, BOOLEAN
 
 
 class ContractDB(object):
@@ -78,30 +78,31 @@ class Projects(TableBase):
     __tablename__ = "projects"
 
     project_id = Column(INTEGER(), primary_key=True, autoincrement=True)  # 工程ID
-    project_name = Column(INTEGER(), nullable=False)  # 工程名称
+    project_name = Column(INTEGER(), nullable=False, unique=True)  # 工程名称
 
 
 #合同表
 class Contracts(TableBase):
     __tablename__ = "contracts"
 
-    contract_id = Column(INTEGER(), primary_key=True, autoincrement=True) #合同ID
+    contract_id = Column(String(256), primary_key=True)  # 合同ID
+    contract_name = Column(String(256), nullable=False) #合同名称
     project_id = Column(INTEGER(), ForeignKey('projects.project_id'), nullable=False) #项目id
     company_id = Column(String(256), ForeignKey('companies.company_id'), nullable=False) #公司id
-    retention_money = Column(Float(), nullable=False, default=0) #质保金额
-    retention_money_date = Column(DATE(), nullable=False) #质保金期限
-    parent_contract_id = Column(INTEGER(), ForeignKey('contracts.contract_id')) #父合同ID -1为没有父合同
-    money_percent = Column(Float(), default=0.0) #资金占父合同百分比
+    retention_money = Column(INTEGER(), default=0) #质保金额
+    retention_money_date = Column(String(256)) #质保金期限
+    parent_contract_id = Column(String(256), ForeignKey('contracts.contract_id')) #父合同ID -1为没有父合同
+    money = Column(INTEGER(), default=0.0) #资金
 
 #合同历史记录表
 class ContractsHistory(TableBase):
     __tablename__ = "contracts_history"
 
     id = Column(INTEGER(), primary_key=True)  # id
-    contract_id = Column(INTEGER(), ForeignKey("contracts.contract_id"), nullable=False) #合同ID
+    contract_id = Column(String(256), ForeignKey("contracts.contract_id"), nullable=False) #合同ID
     progress = Column(Float(), default=0.0) #进度
     pay_money = Column(Float(), default=0.0) #已支付款项
-    datetime = Column(DATETIME(), nullable=False) #创建时间
+    datetime = Column(String(256), nullable=False) #创建时间
 
 #资金来源表
 class MoneyFrom(TableBase):

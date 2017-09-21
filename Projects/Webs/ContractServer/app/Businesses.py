@@ -27,7 +27,7 @@ def doResponse(func):
                         return buildStandResponse(StateCode_InvaildDataFormat)
             elif "GET" == request.method:
                 args = request.args
-            print("GET args:", args)
+                print("GET args:", args)
             return func(None, args)
         else:
             return buildStandResponse(StateCode_UnsupportMethod)
@@ -89,6 +89,90 @@ def doUserLogin(request, args=None):
             return buildStandResponse(StateCode_InvaildParam)
 
 @doResponse
+def doUserModify(request, args=None):
+    if args is not None:
+        user = args.get("user", "")
+        authority = args.get("authority", "")
+        name = args.get("name", "")
+        if checkDataVaild(user) and (checkDataVaild(authority) or checkDataVaild(name)):
+            record = records(ContractDB.session(), User, User.user_id == user)
+            if len(record) > 0:
+                existuser = record[0]
+                if checkDataVaild(authority):
+                    existuser.authority_id = authority
+                if checkDataVaild(name):
+                    existuser.name = name
+                addOrRecord(ContractDB.session(), existuser)
+                record = records(ContractDB.session(), User, User.user_id == user)
+                res = {}
+                res["user"] = user
+                res["authority"] = record[0].authority_id
+                res["name"] = record[0].name
+                return buildStandResponse(StateCode_Success, res)
+            else:
+                return buildStandResponse(StateCode_UserNotExist)
+        else:
+            return buildStandResponse(StateCode_InvaildParam)
+
+@doResponse
+def doProjectCreate(request, args=None):
+    if args is not None:
+        name = args.get("project_name", "")
+        #print("-->", name)
+        if checkDataVaild(name):
+            record = records(ContractDB.session(), Projects, Projects.project_name == name)
+            if len(record) == 0:
+                project = Projects(project_name=name)
+                addOrRecord(ContractDB.session(), project)
+                record = records(ContractDB.session(), Projects, Projects.project_name == name)
+                if len(record) > 0:
+                    res = {}
+                    res["project_id"] = record[0].project_id
+                    res["project_name"] = record[0].project_name
+                    return buildStandResponse(StateCode_Success, res)
+                else:
+                    return buildStandResponse(StateCode_FailedToCreateProject)
+            else:
+                return buildStandResponse(StateCode_ProjectExist)
+        else:
+            return buildStandResponse(StateCode_InvaildParam)
+
+@doResponse
+def doContractCreate(request, args=None):
+    if args is not None:
+        project_id= args.get("project_id", "")
+        contract_name= args.get("contract_name", "")
+        company_id= args.get("company_id", "")
+        retention_money= args.get("retention_money", "")
+        retention_money_date= args.get("retention_money_date", "")
+        parent_contract_id= args.get("parent_contract_id", "")
+        money= args.get("money", "")
+        #print("-->", name)
+        if checkDataVaild(contract_name):
+            record = records(ContractDB.session(), Contracts, Contracts.contract_name == contract_name)
+            if len(record) == 0:
+                contract = Contracts(contract_id=createUuid(), project_id=project_id,contract_name=contract_name, company_id=company_id, retention_money= retention_money, retention_money_date=retention_money_date, parent_contract_id=parent_contract_id, money=money)
+                addOrRecord(ContractDB.session(), contract)
+                record = records(ContractDB.session(), Contracts, Contracts.contract_name == contract_name)
+                if len(record) > 0:
+                    res = {}
+                    res["project_id"] = record[0].contract_id
+                    res["project_id"] = record[0].project_id
+                    res["contract_name"] = record[0].contract_name
+                    res["company_id"] = record[0].company_id
+                    res["retention_money"] = record[0].retention_money
+                    res["retention_money_date"] = record[0].retention_money_date
+                    res["parent_contract_id"] = record[0].parent_contract_id
+                    res["money"] = record[0].money
+                    return buildStandResponse(StateCode_Success, res)
+                else:
+                    return buildStandResponse(StateCode_FailedToCreateProject)
+            else:
+                return buildStandResponse(StateCode_ContractExist)
+        else:
+            return buildStandResponse(StateCode_InvaildParam)
+
+@doResponse
 def getAuthorityList(request, args=None):
     if args is not None:
         authoritys = records(ContractDB.session(), Authority)
@@ -100,3 +184,16 @@ def getAuthorityList(request, args=None):
             temp["name"] = auth.authority_name
             auth_json["authorities"].append(temp)
         return buildStandResponse(StateCode_Success, auth_json)
+
+@doResponse
+def getProjectList(request, args=None):
+    if args is not None:
+        projects = records(ContractDB.session(), Projects)
+        project_json = {}
+        project_json["projects"] = []
+        for pro in projects:
+            temp = {}
+            temp["project_id"] = pro.project_id
+            temp["project_name"] = pro.project_name
+            project_json["projects"].append(temp)
+        return buildStandResponse(StateCode_Success, project_json)

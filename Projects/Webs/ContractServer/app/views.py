@@ -19,8 +19,26 @@ def login():
     return doUserLogin(request, None)
 
 # 修改用户权限
+@app.route('/api/user/modify/other', methods=["POST"])
+def user_modify():
+    return doUserModify(request, None)
 
 # 获取权限列表
 @app.route('/api/authority/list', methods=["GET"])
 def authority_list():
     return getAuthorityList(request, None)
+
+# 获取项目列表
+@app.route('/api/project/list', methods=["GET"])
+def project_list():
+    return getProjectList(request, None)
+
+# 创建项目
+@app.route('/api/project/create', methods=["POST"])
+def project_create():
+    return doProjectCreate(request, None)
+
+# 创建合同
+@app.route('/api/contract/create', methods=["POST"])
+def contract_create():
+    return doContractCreate(request, None)
