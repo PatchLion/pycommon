@@ -22,7 +22,10 @@ def doResponse(func):
                 print("POST json data:", json_data)
                 if checkDataVaild(json_data):
                     try:
-                        args = json.loads(json_data)
+                        if isinstance(json_data, bytes):
+                            args = json.loads(str(json_data, encoding='utf-8'))
+                        else:
+                            args = json.loads(json_data)
                     except JSONDecodeError as e:
                         return buildStandResponse(StateCode_InvaildDataFormat)
             elif "GET" == request.method:
