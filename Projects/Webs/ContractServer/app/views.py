@@ -42,3 +42,8 @@ def project_create():
 @app.route('/api/contract/create', methods=["POST"])
 def contract_create():
     return doContractCreate(request, None)
+
+# 获取合同
+@app.route('/api/contract/list', methods=["GET"])
+def contract_list():
+    return getContractList(request, None)

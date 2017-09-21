@@ -156,7 +156,7 @@ def doContractCreate(request, args=None):
                 record = records(ContractDB.session(), Contracts, Contracts.contract_name == contract_name)
                 if len(record) > 0:
                     res = {}
-                    res["project_id"] = record[0].contract_id
+                    res["contract_id"] = record[0].contract_id
                     res["project_id"] = record[0].project_id
                     res["contract_name"] = record[0].contract_name
                     res["company_id"] = record[0].company_id
@@ -197,3 +197,34 @@ def getProjectList(request, args=None):
             temp["project_name"] = pro.project_name
             project_json["projects"].append(temp)
         return buildStandResponse(StateCode_Success, project_json)
+
+@doResponse
+def getContractList(request, args=None):
+    if args is not None:
+        username = args.get("user", "")
+        if checkDataVaild(username):
+            record = records(ContractDB.session(), User, User.user_id == username)
+            if len(record) == 0:
+                return buildStandResponse(StateCode_UserNotExist)
+
+            user = record[0]
+
+            contracts = records(ContractDB.session(), Contracts)
+
+            res_json = {}
+            res_json["contracts"] = []
+            for cont in contracts:
+                if cont.company_id == user.company_id or -1 == user.company_id:
+                    res = {}
+                    res["contract_id"] = cont.contract_id
+                    res["project_id"] = cont.project_id
+                    res["contract_name"] = cont.contract_name
+                    res["company_id"] = cont.company_id
+                    res["retention_money"] = cont.retention_money
+                    res["retention_money_date"] = cont.retention_money_date
+                    res["parent_contract_id"] = cont.parent_contract_id
+                    res["money"] = cont.money
+                    res_json["contracts"].append(res)
+            return buildStandResponse(StateCode_Success, res_json)
+        else:
+            return buildStandResponse(StateCode_InvaildParam)
