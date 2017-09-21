@@ -19,3 +19,8 @@ def login():
     return doUserLogin(request, None)
 
 # 修改用户权限
+
+# 获取权限列表
+@app.route('/api/authority/list', methods=["GET"])
+def authority_list():
+    return getAuthorityList(request, None)

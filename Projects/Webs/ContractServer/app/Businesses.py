@@ -16,22 +16,19 @@ def doResponse(func):
         supports_methods = ["POST", "GET"]
         print(request.method)
         if request.method in supports_methods:
+            args = {}
             if "POST" == request.method:
                 json_data = request.get_data()
                 print("POST json data:", json_data)
                 if checkDataVaild(json_data):
                     try:
                         args = json.loads(json_data)
-                        #print("POST args:", args)
-                        return func(None, args)
                     except JSONDecodeError as e:
                         return buildStandResponse(StateCode_InvaildDataFormat)
-                else:
-                    return buildStandResponse(StateCode_InvaildParam)
             elif "GET" == request.method:
                 args = request.args
-                print("GET args:", args)
-                return func(None, args)
+            print("GET args:", args)
+            return func(None, args)
         else:
             return buildStandResponse(StateCode_UnsupportMethod)
     return wrapper
@@ -90,3 +87,16 @@ def doUserLogin(request, args=None):
                 return buildStandResponse(StateCode_FailedToLogin)
         else:
             return buildStandResponse(StateCode_InvaildParam)
+
+@doResponse
+def getAuthorityList(request, args=None):
+    if args is not None:
+        authoritys = records(ContractDB.session(), Authority)
+        auth_json = {}
+        auth_json["authorities"] = []
+        for auth in authoritys:
+            temp = {}
+            temp["authority"] = auth.authority_id
+            temp["name"] = auth.authority_name
+            auth_json["authorities"].append(temp)
+        return buildStandResponse(StateCode_Success, auth_json)
