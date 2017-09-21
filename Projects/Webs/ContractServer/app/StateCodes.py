@@ -14,3 +14,11 @@ StateCodeDescriptions = {StateCode_Success : "成功",
                          StateCode_FailedCreateUser: "创建用户失败",
                          StateCode_InvaildDataFormat: "无效的数据格式",
                          StateCode_FailedToLogin: "登录失败"}
+
+
+#获取代码描述
+def codeString(code):
+    if code in StateCodeDescriptions.keys():
+        return StateCodeDescriptions[code]
+    else:
+        return "未知代码"
