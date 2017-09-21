@@ -8,3 +8,6 @@ import os
 # mysql: mysql://root:root@localhost:3306/new_db?charset=utf8
 # sqlite: sqlite:///test.db
 DB_STRING = 'sqlite:///' + os.path.split(__file__)[0] + "/database/contracts.db"
+
+#文件存储根目录
+FILE_RESTORE_ROOT_DIR = "Contract-Files"

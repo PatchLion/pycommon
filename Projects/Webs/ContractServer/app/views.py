@@ -52,3 +52,18 @@ def contract_list():
 @app.route('/api/contract/history/create', methods=["POST"])
 def create_contracts_history():
     return doContractHistory(request, None)
+
+# 获取公司列表
+@app.route('/api/companies/list', methods=["GET"])
+def get_companies():
+    return getCompanies(request, None)
+
+# 创建公司
+@app.route('/api/companies/create', methods=["POST"])
+def create_company():
+    return doCompanyCreate(request, None)
+
+# 上传文件
+@app.route('/api/upload', methods=["POST"])
+def upload():
+    return doUpload(request, None)

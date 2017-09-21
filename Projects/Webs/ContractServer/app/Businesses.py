@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import json
-from flask import request
+#from flask import request
 from json.decoder import *
+from Projects.Webs.ContractServer.settings import *
 from Projects.Webs.ContractServer.app.Functions import *
 from Projects.Webs.ContractServer.app.StateCodes import *
 from Projects.Webs.ContractServer.database.ContractDatabase import *
 from MySqlAlchemy.DBOperator import *
+import base64
 
 #args不为None时，证明已经通过参数验证, 外部调用请勿传args
 
@@ -226,6 +228,19 @@ def getProjectList(request, args=None):
         return buildStandResponse(StateCode_Success, project_json)
 
 @doResponse
+def getCompanies(request, args=None):
+    if args is not None:
+        objects = records(ContractDB.session(), Companies)
+        res_json = {}
+        res_json["companies"] = []
+        for obj in objects:
+            temp = {}
+            temp["company_id"] = obj.company_id
+            temp["company_name"] = obj.company_name
+            res_json["companies"].append(temp)
+        return buildStandResponse(StateCode_Success, res_json)
+
+@doResponse
 def getContractList(request, args=None):
     if args is not None:
         username = args.get("user", "")
@@ -233,11 +248,8 @@ def getContractList(request, args=None):
             record = records(ContractDB.session(), User, User.user_id == username)
             if len(record) == 0:
                 return buildStandResponse(StateCode_UserNotExist)
-
             user = record[0]
-
             contracts = records(ContractDB.session(), Contracts)
-
             res_json = {}
             res_json["contracts"] = []
             for cont in contracts:
@@ -253,5 +265,64 @@ def getContractList(request, args=None):
                     res["money"] = cont.money
                     res_json["contracts"].append(res)
             return buildStandResponse(StateCode_Success, res_json)
+        else:
+            return buildStandResponse(StateCode_InvaildParam)
+
+@doResponse
+def doUpload(request, args=None):
+    if args is not None:
+        filename = args.get("filename", "")
+        filedata = args.get("filedata", "")
+        classify = args.get("classify", "")
+        contract_id = args.get("contract_id", "")
+        if checkDataVaild(filename) and checkDataVaild(filedata) and checkDataVaild(contract_id) and checkDataVaild(classify):
+            objs = records(ContractDB.session(), Contracts, Contracts.contract_id == contract_id)
+            if len(objs) > 0:
+                cont = objs[0]
+                contName = cont.contract_name
+                objs = records(ContractDB.session(), Projects, Projects.project_id==cont.project_id)
+                if len(objs) > 0:
+                    pro = objs[0]
+                    proName = pro.project_name
+                    dir = os.path.join(FILE_RESTORE_ROOT_DIR,proName, contName, classify)
+                    if not os.path.exists(dir):
+                        os.makedirs(dir)
+                    fullpath = os.path.join(dir, filename)
+
+                    if os.path.exists(fullpath):
+                        return buildStandResponse(StateCode_FileExist)
+
+                    with open(fullpath, "wb", ) as f:
+                        print("Write file to:", fullpath)
+                        f.write(base64.b64decode(filedata))
+                        addOrRecord(ContractDB.session(), Uploads(contract_id=contract_id, path=fullpath))
+                    return buildStandResponse(StateCode_Success, {"url":fullpath})
+                else:
+                    return buildStandResponse(StateCode_ProjectNotExist)
+            else:
+                return buildStandResponse(StateCode_ContractNotExist)
+        else:
+            return buildStandResponse(StateCode_InvaildParam)
+
+@doResponse
+def doCompanyCreate(request, args=None):
+    if args is not None:
+        name = args.get("company_name", "")
+        #print("-->", name)
+        if checkDataVaild(name):
+            record = records(ContractDB.session(), Companies, Companies.company_name == name)
+            if len(record) == 0:
+                obj = Companies(company_name=name)
+                addOrRecord(ContractDB.session(), obj)
+                record = records(ContractDB.session(), Companies, Companies.company_name == name)
+                if len(record) > 0:
+                    res = {}
+                    res["company_id"] = record[0].company_id
+                    res["company_name"] = record[0].company_name
+                    return buildStandResponse(StateCode_Success, res)
+                else:
+                    return buildStandResponse(StateCode_FailedToCreateCompany)
+            else:
+                return buildStandResponse(StateCode_CompanyExist)
         else:
             return buildStandResponse(StateCode_InvaildParam)

@@ -70,16 +70,23 @@ class Authority(TableBase):
 class Companies(TableBase):
     __tablename__ = "companies"
 
-    company_id = Column(INTEGER(), primary_key=True, autoincrement=True) #公司ID
-    company_name = Column(String(256), nullable=False) #公司名称
+    company_id = Column(INTEGER(),  primary_key=True, autoincrement=True) #公司ID
+    company_name = Column(String(256), unique=True, nullable=False) #公司名称
 
 #项目表
 class Projects(TableBase):
     __tablename__ = "projects"
 
-    project_id = Column(INTEGER(), primary_key=True, autoincrement=True)  # 工程ID
-    project_name = Column(INTEGER(), nullable=False, unique=True)  # 工程名称
+    project_id = Column(INTEGER(),primary_key=True, autoincrement=True)  # 工程ID
+    project_name = Column(String(256), unique=True, nullable=False)  # 工程名称
 
+#文件上传记录
+class Uploads(TableBase):
+    __tablename__ = "uploads"
+
+    id = Column(INTEGER(),primary_key=True, autoincrement=True)  # ID
+    contract_id = Column(String(256),nullable=False)  # 合同id
+    path = Column(String(256),nullable=False)  # 工程名称
 
 #合同表
 class Contracts(TableBase):
