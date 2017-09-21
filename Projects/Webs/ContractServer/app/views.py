@@ -47,3 +47,8 @@ def contract_create():
 @app.route('/api/contract/list', methods=["GET"])
 def contract_list():
     return getContractList(request, None)
+
+# 增加合同执行记录
+@app.route('/api/contract/history/create', methods=["POST"])
+def create_contracts_history():
+    return doContractHistory(request, None)

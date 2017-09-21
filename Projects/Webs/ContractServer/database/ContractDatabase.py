@@ -90,7 +90,7 @@ class Contracts(TableBase):
     project_id = Column(INTEGER(), ForeignKey('projects.project_id'), nullable=False) #项目id
     company_id = Column(String(256), ForeignKey('companies.company_id'), nullable=False) #公司id
     retention_money = Column(INTEGER(), default=0) #质保金额
-    retention_money_date = Column(String(256)) #质保金期限
+    retention_money_date = Column(INTEGER()) #质保金期限
     parent_contract_id = Column(String(256), ForeignKey('contracts.contract_id')) #父合同ID -1为没有父合同
     money = Column(INTEGER(), default=0.0) #资金
 
@@ -98,11 +98,11 @@ class Contracts(TableBase):
 class ContractsHistory(TableBase):
     __tablename__ = "contracts_history"
 
-    id = Column(INTEGER(), primary_key=True)  # id
+    id = Column(String(256), primary_key=True)  # id
     contract_id = Column(String(256), ForeignKey("contracts.contract_id"), nullable=False) #合同ID
     progress = Column(Float(), default=0.0) #进度
     pay_money = Column(Float(), default=0.0) #已支付款项
-    datetime = Column(String(256), nullable=False) #创建时间
+    datetime = Column(INTEGER(), nullable=False) #创建时间
 
 #资金来源表
 class MoneyFrom(TableBase):

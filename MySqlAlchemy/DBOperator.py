@@ -29,6 +29,7 @@ def addOrRecord(session, records):
         size = 1
     print("Total {0} record added or updated!".format(size))
     session.commit()
+    return size
 
 '''删除纪录'''
 def removeRecords(session, type, conds):

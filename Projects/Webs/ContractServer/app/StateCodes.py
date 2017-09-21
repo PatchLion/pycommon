@@ -10,6 +10,7 @@ StateCode_UserNotExist = 1007
 StateCode_ProjectExist = 1008
 StateCode_FailedToCreateProject = 1009
 StateCode_ContractExist = 1010
+StateCode_FailedToCreateContractHistory = 1011
 
 StateCodeDescriptions = {StateCode_Success : "成功",
                          StateCode_UserExist : "用户已存在",
@@ -21,7 +22,8 @@ StateCodeDescriptions = {StateCode_Success : "成功",
                          StateCode_UserNotExist: "用户不存在",
                          StateCode_ProjectExist: "项目已存在",
                          StateCode_FailedToCreateProject: "创建项目失败",
-                         StateCode_ContractExist: "合同已存在"}
+                         StateCode_ContractExist: "合同已存在",
+                         StateCode_FailedToCreateContractHistory: "创建合同历史记录失败"}
 
 
 #获取代码描述

@@ -138,6 +138,30 @@ def doProjectCreate(request, args=None):
             return buildStandResponse(StateCode_InvaildParam)
 
 @doResponse
+def doContractHistory(request, args=None):
+    if args is not None:
+        contract_id = args.get("contract_id", "")
+        progress = args.get("progress", "")
+        pay_money = args.get("pay_money", "")
+        #print("-->", name)
+        if checkDataVaild(contract_id):
+            id = createUuid()
+            dt = currentTimeStamp()
+            size = addOrRecord(ContractDB.session(), ContractsHistory(id=id, contract_id=contract_id, progress=progress, pay_money=pay_money, datetime = dt))
+            if size > 0:
+                res = {}
+                res["id"] = id
+                res["contract_id"] = contract_id
+                res["progress"] = progress
+                res["pay_money"] = pay_money
+                res["datetime"] = dt
+                return buildStandResponse(StateCode_Success, res)
+            else:
+                return buildStandResponse(StateCode_FailedToCreateContractHistory)
+        else:
+            return buildStandResponse(StateCode_InvaildParam)
+
+@doResponse
 def doContractCreate(request, args=None):
     if args is not None:
         project_id= args.get("project_id", "")
