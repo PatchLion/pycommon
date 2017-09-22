@@ -43,28 +43,33 @@ class ContractDB(object):
 
 #用户表
 class User(TableBase):
-    __tablename__ = "user"
-
+    __tablename__ = "users"
     user_id = Column(String(256), primary_key=True) #用户ID
     password = Column(String(256), nullable=False) #密码
     name = Column(String(256), nullable=False) #名称
-    authority_id = Column(INTEGER(), nullable=True, default=-1) #权限 -1为没有任何权限
-    company_id = Column(INTEGER(), nullable=True, default=-1) #所属公司 -1为不属于任何公司
 
-#Token表
-class Tokens(TableBase):
-    __tablename__ = "usertokens"
+#角色表
+class Roles(TableBase):
+    __tablename__ = "roles"
+    role_id = Column(String(256), primary_key=True) #角色ID
+    role_name = Column(String(256), unique=True, nullable=False) #角色名称
 
-    user_id = Column(String(256), primary_key=True)  #用户ID
-    token = Column(String(256), nullable=False, unique=True)  #token
-    timestamp = Column(String(256), nullable=False)  #过期时间戳
+#角色权限表
+class RoleAuth(TableBase):
+    __tablename__ = "roleauths"
 
-#权限表
-class Authority(TableBase):
-    __tablename__ = "authority"
+    id = Column(INTEGER(), primary_key=True, autoincrement=True)  #
+    role_id = Column(String(256), ForeignKey("roles.role_id")) #角色ID
+    role_value = Column(INTEGER(), nullable=True) #角色权限
 
-    authority_id = Column(INTEGER(), primary_key=True, autoincrement=True)  #权限ID
-    authority_name = Column(String(256), nullable=False)  #权限名称
+#角色用户关联表
+class UserRole(TableBase):
+    __tablename__ = "userroles"
+
+    id = Column(INTEGER(), primary_key=True, autoincrement=True)  #
+    user_id = Column(String(256), ForeignKey("users.user_id"), unique=True)  # 用户ID
+    role_id = Column(String(256), ForeignKey("roles.role_id"))  # 角色ID
+
 
 #公司表
 class Companies(TableBase):

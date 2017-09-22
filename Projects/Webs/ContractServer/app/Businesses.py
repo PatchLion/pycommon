@@ -62,13 +62,26 @@ def doRegister(request, args=None):
                     returndata = {}
                     returndata["user"] = user
                     returndata["name"] = name
-                    returndata["authority"] = record[0].authority_id
-                    returndata["company"] = record[0].company_id
                     return buildStandResponse(StateCode_Success, returndata)
                 else:
                     return buildStandResponse(StateCode_FailedCreateUser)
         else:
             return buildStandResponse(StateCode_InvaildParam)
+
+def userRoleID(userID):
+    rs = records(ContractDB.session(), UserRole, UserRole.user_id == userID)
+    if len(rs) > 0:
+        return rs[0].role_id
+    else:
+        return None
+
+def ruleWithRoleID(roleID):
+    rs = records(ContractDB.session(), Roles, Roles.role_id)
+    if len(rs) > 0:
+        ret = [r.role_value for r in rs]
+        return ret
+    else:
+        return []
 
 
 @doResponse
@@ -78,15 +91,16 @@ def doUserLogin(request, args=None):
         pwd = args.get("pwd", "")
         if checkDataVaild(user) and checkDataVaild(pwd):
             pwdmd5 = stringMD5(pwd)  # 加密后的密码
-            print(pwd, "--->", pwdmd5)
+            #print(pwd, "--->", pwdmd5)
             record = records(ContractDB.session(), User, and_(User.user_id == user, User.password == pwdmd5))
             if len(record) > 0:
-                token = Tokens(user_id=user, token=createUuid(), timestamp=currentTimeStamp() + seconds(0, 0, 0, 30))
-                addOrRecord(ContractDB.session(), token)
+                roleID = userRoleID(user)
                 returndata = {}
-                returndata["user"] = token.user_id
-                returndata["token"] = token.token
-                returndata["expiry"] = token.timestamp
+                rules = []
+                if roleID is not None:
+                    rules = ruleWithRoleID(roleID)
+                returndata["roles"] = rules
+                returndata["user"] = user
                 return buildStandResponse(StateCode_Success, returndata)
             else:
                 return buildStandResponse(StateCode_FailedToLogin)
@@ -202,19 +216,6 @@ def doContractCreate(request, args=None):
             return buildStandResponse(StateCode_InvaildParam)
 
 @doResponse
-def getAuthorityList(request, args=None):
-    if args is not None:
-        authoritys = records(ContractDB.session(), Authority)
-        auth_json = {}
-        auth_json["authorities"] = []
-        for auth in authoritys:
-            temp = {}
-            temp["authority"] = auth.authority_id
-            temp["name"] = auth.authority_name
-            auth_json["authorities"].append(temp)
-        return buildStandResponse(StateCode_Success, auth_json)
-
-@doResponse
 def getProjectList(request, args=None):
     if args is not None:
         projects = records(ContractDB.session(), Projects)
@@ -227,6 +228,26 @@ def getProjectList(request, args=None):
             project_json["projects"].append(temp)
         return buildStandResponse(StateCode_Success, project_json)
 
+@doResponse
+def doCreateRole(request, args=None):
+    if args is not None:
+        role_name = args.get("role_name", "")
+        if checkDataVaild(role_name):
+            objs = records(ContractDB.session(), Roles, Roles.role_name == role_name)
+            if len(objs) == 0:
+                id = createUuid()
+                size = addOrRecord(ContractDB.session(), Roles(role_id=id, role_name=role_name))
+                if size > 0:
+                    res_json = {}
+                    res_json["role_id"] = id
+                    res_json["role_name"] = role_name
+                    return buildStandResponse(StateCode_Success, res_json)
+                else:
+                    return buildStandResponse(StateCode_FailedToCreateRole)
+            else:
+                return buildStandResponse(StateCode_RoleExist)
+        else:
+            return buildStandResponse(StateCode_InvaildParam)
 @doResponse
 def getCompanies(request, args=None):
     if args is not None:

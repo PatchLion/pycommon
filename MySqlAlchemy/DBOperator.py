@@ -32,7 +32,11 @@ def addOrRecord(session, records):
     return size
 
 '''删除纪录'''
-def removeRecords(session, type, conds):
-    size = session.query(type).filter(conds).delete(synchronize_session=False)
+def removeRecords(session, type, conds = None):
+    size = 0
+    if conds is None:
+        size = session.query(type).delete(synchronize_session=False)
+    else:
+        size = session.query(type).filter(conds).delete(synchronize_session=False)
     session.commit()
     print("Total {0} record removed!".format(size))

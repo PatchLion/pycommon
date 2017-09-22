@@ -6,7 +6,7 @@ from Projects.Webs.ContractServer.app.Businesses import *
 @app.route('/')
 @app.route('/index')
 def index():
-    return "Welcome to ContractServer!"
+    return "<p>欢迎光临API服务器(Contract Server API)!</p><p><a href='https://www.showdoc.cc/1669185'>API文档</a>      By 打补丁的狮子 / SimpleLove</p>"
 
 # 注册用户
 @app.route('/api/user/register', methods=["POST"])
@@ -23,10 +23,10 @@ def login():
 def user_modify():
     return doUserModify(request, None)
 
-# 获取权限列表
-@app.route('/api/authority/list', methods=["GET"])
-def authority_list():
-    return getAuthorityList(request, None)
+# 添加角色
+@app.route('/api/role/create', methods=["GET", "POST"])
+def role_create():
+    return doCreateRole(request, None)
 
 # 获取项目列表
 @app.route('/api/project/list', methods=["GET"])
