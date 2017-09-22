@@ -10,7 +10,7 @@ class ApiTest(unittest.TestCase):
 
     def test_init(self):
         removeRecords(ContractDB.session(), User)
-        removeRecords(ContractDB.session(), Roles)
+        removeRecords(ContractDB.session(), Role)
 
     # 用户注册
     def test_user_create(self):
@@ -33,7 +33,9 @@ class ApiTest(unittest.TestCase):
         get(api, {}, self.assertEquals, [200, StateCode_InvaildParam])
         post(api, {}, self.assertEquals, [200, StateCode_InvaildParam])
 
+    '''
     #用户登录
     def test_user_login(self):
         api = "/api/user/login"
         post(api, {"user": "a", "pwd": "b"}, self.assertEquals, [200, StateCode_Success])
+'''

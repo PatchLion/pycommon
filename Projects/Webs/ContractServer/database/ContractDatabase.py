@@ -39,97 +39,105 @@ class ContractDB(object):
         TableBase.metadata.drop_all(bind=cls.engine())
         print("Drop tables finished!")
 
-
-
 #用户表
 class User(TableBase):
-    __tablename__ = "users"
-    user_id = Column(String(256), primary_key=True) #用户ID
+    __tablename__ = "User"
+
+    id = Column(INTEGER(), primary_key=True, autoincrement=True) #id
+    user = Column(String(256), unique=True, nullable=False) #用户名
     password = Column(String(256), nullable=False) #密码
-    name = Column(String(256), nullable=False) #名称
+    name = Column(String(256), nullable=True) #名称
+    company_id = Column(INTEGER(), nullable=True, default=-1) #公司id
+    role_id = Column(INTEGER(), nullable=True, default=-1) #角色id
 
 #角色表
-class Roles(TableBase):
-    __tablename__ = "roles"
-    role_id = Column(String(256), primary_key=True) #角色ID
-    role_name = Column(String(256), unique=True, nullable=False) #角色名称
+class Role(TableBase):
+    __tablename__ = "Role"
+
+    id = Column(INTEGER(), primary_key=True, autoincrement=True)  #id
+    name = Column(String(256), unique=True, nullable=False) #角色名称
 
 #角色权限表
 class RoleAuth(TableBase):
-    __tablename__ = "roleauths"
+    __tablename__ = "RoleAuth"
 
-    id = Column(INTEGER(), primary_key=True, autoincrement=True)  #
-    role_id = Column(String(256), ForeignKey("roles.role_id")) #角色ID
-    role_value = Column(INTEGER(), nullable=True) #角色权限
+    id = Column(INTEGER(), primary_key=True, autoincrement=True) #id
+    role_id = Column(INTEGER(), nullable=False) #角色id
+    auth = Column(INTEGER(), nullable=False) #权限
 
-#角色用户关联表
-class UserRole(TableBase):
-    __tablename__ = "userroles"
 
-    id = Column(INTEGER(), primary_key=True, autoincrement=True)  #
-    user_id = Column(String(256), ForeignKey("users.user_id"), unique=True)  # 用户ID
-    role_id = Column(String(256), ForeignKey("roles.role_id"))  # 角色ID
+#用户权限表
+class UserAuth(TableBase):
+    __tablename__ = "UserAuth"
+
+    id = Column(INTEGER(), primary_key=True, autoincrement=True)  #id
+    user_id = Column(INTEGER(), nullable=False) #用户id
+    auth = Column(INTEGER(), nullable=False) #权限
 
 
 #公司表
-class Companies(TableBase):
-    __tablename__ = "companies"
+class Company(TableBase):
+    __tablename__ = "Company"
 
-    company_id = Column(INTEGER(),  primary_key=True, autoincrement=True) #公司ID
-    company_name = Column(String(256), unique=True, nullable=False) #公司名称
+    id = Column(INTEGER(), primary_key=True, autoincrement=True) #id
+    name = Column(String(256), unique=True, nullable=False) #公司名称
 
 #项目表
-class Projects(TableBase):
-    __tablename__ = "projects"
+class Project(TableBase):
+    __tablename__ = "Project"
 
-    project_id = Column(INTEGER(),primary_key=True, autoincrement=True)  # 工程ID
-    project_name = Column(String(256), unique=True, nullable=False)  # 工程名称
+    id = Column(INTEGER(), primary_key=True, autoincrement=True)  #id
+    name = Column(String(256), unique=True, nullable=False)  #工程名称
+    money = Column(INTEGER(), nullable=True, default=-1) #项目总投资金额
+    last_date = Column(INTEGER(), nullable=True, default=-1) #项目到期日期，时间戳
+    first_approve_user_id = Column(INTEGER(), nullable=True, default=-1) #首次审批用户
+    second_approve_user_id = Column(INTEGER(), nullable=True, default=-1) #第二次审批用户
+
+#审批申请表
+class AskApprove(TableBase):
+    __tablename__ = "AskApprove"
+
+    id = Column(INTEGER(), primary_key=True, autoincrement=True)  #id
+    project_id = Column(INTEGER(), nullable=False)  #项目id
+    user_id = Column(INTEGER(), nullable=False)  #用户id
+    isFirst = Column(BOOLEAN(), nullable=False)  #是否是首次审批
 
 #文件上传记录
-class Uploads(TableBase):
-    __tablename__ = "uploads"
+class File(TableBase):
+    __tablename__ = "File"
 
-    id = Column(INTEGER(),primary_key=True, autoincrement=True)  # ID
-    contract_id = Column(String(256),nullable=False)  # 合同id
-    path = Column(String(256),nullable=False)  # 工程名称
+    id = Column(INTEGER(),primary_key=True, autoincrement=True)  #id
+    contract_id = Column(String(256),nullable=False)  #合同id
+    classify = Column(String(256),nullable=False) #分类
+    name = Column(String(256),nullable=False) #名称
+    note = Column(String(256), nullable=True) #备注
 
 #合同表
-class Contracts(TableBase):
-    __tablename__ = "contracts"
+class Contract(TableBase):
+    __tablename__ = "Contract"
 
-    contract_id = Column(String(256), primary_key=True)  # 合同ID
-    contract_name = Column(String(256), nullable=False) #合同名称
-    project_id = Column(INTEGER(), ForeignKey('projects.project_id'), nullable=False) #项目id
-    company_id = Column(String(256), ForeignKey('companies.company_id'), nullable=False) #公司id
-    retention_money = Column(INTEGER(), default=0) #质保金额
-    retention_money_date = Column(INTEGER()) #质保金期限
-    parent_contract_id = Column(String(256), ForeignKey('contracts.contract_id')) #父合同ID -1为没有父合同
+    id = Column(INTEGER(),primary_key=True, autoincrement=True)  #id
+    name = Column(String(256), unique=True, nullable=False) #合同名称
+    project_id = Column(INTEGER(), nullable=False) #项目id
+    company_id = Column(INTEGER(), nullable=False) #公司id
+    retention_money = Column(INTEGER(), nullable=True, default=-1) #质保金额
+    retention_money_date = Column(INTEGER(), nullable=True, default=-1) #质保金期限, 时间戳
+    parent_contract_id = Column(INTEGER(),nullable=True, default=-1) #父合同ID -1为没有父合同
     money = Column(INTEGER(), default=0.0) #资金
+    second_party_name = Column(String(256), nullable=False) #乙方名称
+    place_of_performance = Column(String(256), nullable=True) #履行地点
+    date_of_performance = Column(String(256), nullable=True) #履行期限
+    type_of_performance = Column(String(256), nullable=True) #履行方式
+    note = Column(String(256), nullable=True, ) #备注
 
-#合同历史记录表
+#合同进度记录表
 class ContractsHistory(TableBase):
-    __tablename__ = "contracts_history"
+    __tablename__ = "ContractsHistory"
 
-    id = Column(String(256), primary_key=True)  # id
-    contract_id = Column(String(256), ForeignKey("contracts.contract_id"), nullable=False) #合同ID
-    progress = Column(Float(), default=0.0) #进度
-    pay_money = Column(Float(), default=0.0) #已支付款项
+    id = Column(INTEGER(), primary_key=True, autoincrement=True)  # id
+    contract_id = Column(INTEGER(), nullable=False) #合同ID
+    progress = Column(INTEGER(), default=0) #进度 0 - 100
+    pay_money = Column(INTEGER(), default=0) #已支付款项
     datetime = Column(INTEGER(), nullable=False) #创建时间
-
-#资金来源表
-class MoneyFrom(TableBase):
-    __tablename__ = "money_from"
-
-    from_id = Column(INTEGER(), primary_key=True, autoincrement=True)  #来源ID
-    from_name = Column(String(256), nullable=False)  #来源名称
-
-#项目总资金及来源表
-class ProjectMoney(TableBase):
-    __tablename__ = "project_money"
-
-    id = Column(INTEGER(), primary_key=True, autoincrement=True)  #资金ID
-    project_id = Column(INTEGER(), ForeignKey('projects.project_id'), nullable=False) #项目ID
-    from_id = Column(INTEGER(), ForeignKey('money_from.from_id'), nullable=False)  # 来源ID
-    money = Column(Float(), nullable=False, default=0.0) #金额
-    is_in_accout = Column(BOOLEAN(), nullable=False, default=False) #是否已到账
+    note = Column(String(256), nullable=True, ) #备注
 
