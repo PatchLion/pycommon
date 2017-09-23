@@ -123,7 +123,9 @@ class Contract(TableBase):
     retention_money = Column(INTEGER(), nullable=True, default=-1) #质保金额
     retention_money_date = Column(INTEGER(), nullable=True, default=-1) #质保金期限, 时间戳
     parent_contract_id = Column(INTEGER(),nullable=True, default=-1) #父合同ID -1为没有父合同
-    money = Column(INTEGER(), default=0.0) #资金
+    money = Column(INTEGER(), nullable=False, default=0) #资金
+    progress = Column(INTEGER(), default=0)  # 进度 0 - 100
+    pay_money = Column(INTEGER(), nullable=False,default=0) #已支付款项
     second_party_name = Column(String(256), nullable=False) #乙方名称
     place_of_performance = Column(String(256), nullable=True) #履行地点
     date_of_performance = Column(String(256), nullable=True) #履行期限
@@ -131,7 +133,7 @@ class Contract(TableBase):
     note = Column(String(256), nullable=True, ) #备注
 
 #合同进度记录表
-class ContractsHistory(TableBase):
+class ContractHistory(TableBase):
     __tablename__ = "ContractsHistory"
 
     id = Column(INTEGER(), primary_key=True, autoincrement=True)  # id

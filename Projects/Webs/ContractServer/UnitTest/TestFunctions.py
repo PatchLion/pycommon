@@ -13,7 +13,7 @@ def post(api, param, equlfunc, compares):
     url = SERVER + api
     data = json.dumps(param, ensure_ascii=False)
     print("POST", url, "With", type(data), data)
-    res = requests.post(url=url, data=data)
+    res = requests.post(url=url, data=data.encode("utf-8"))
     return resolve_response(res, equlfunc, compares)
 
 

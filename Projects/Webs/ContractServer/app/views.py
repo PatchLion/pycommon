@@ -18,10 +18,12 @@ def regist():
 def login():
     return doUserLogin(request, None)
 
-# 修改用户权限
+# 修改用户信息
+'''
 @app.route('/api/user/modify/other', methods=["POST"])
 def user_modify():
     return doUserModify(request, None)
+'''
 
 # 添加角色
 @app.route('/api/role/create', methods=["GET", "POST"])
@@ -44,7 +46,7 @@ def contract_create():
     return doContractCreate(request, None)
 
 # 获取合同
-@app.route('/api/contract/list', methods=["GET"])
+@app.route('/api/contract/list', methods=["POST"])
 def contract_list():
     return getContractList(request, None)
 
@@ -64,6 +66,6 @@ def create_company():
     return doCompanyCreate(request, None)
 
 # 上传文件
-@app.route('/api/upload', methods=["POST"])
+@app.route('/api/contract/upload', methods=["POST"])
 def upload():
     return doUpload(request, None)

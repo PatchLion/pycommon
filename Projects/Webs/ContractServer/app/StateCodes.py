@@ -18,6 +18,7 @@ StateCode_ProjectNotExist = 1015
 StateCode_FileExist = 1015
 StateCode_RoleExist = 1016
 StateCode_FailedToCreateRole = 1017
+StateCode_FailedToCreateContract = 1018
 
 StateCodeDescriptions = {
 StateCode_Success : "成功",
@@ -38,7 +39,8 @@ StateCode_ContractNotExist: "合同不存在",
 StateCode_ProjectNotExist: "项目不存在",
 StateCode_FileExist: "文件已存在",
 StateCode_RoleExist: "角色已存在",
-StateCode_FailedToCreateRole: "创建角色失败"
+StateCode_FailedToCreateRole: "创建角色失败",
+StateCode_FailedToCreateContract: "创建合同失败"
 }
 
 
