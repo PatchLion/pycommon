@@ -44,9 +44,9 @@ class User(TableBase):
     __tablename__ = "User"
 
     id = Column(INTEGER(), primary_key=True, autoincrement=True) #id
-    user = Column(String(256), unique=True, nullable=False) #用户名
+    user_name = Column(String(256), unique=True, nullable=False) #用户名
     password = Column(String(256), nullable=False) #密码
-    name = Column(String(256), nullable=True) #名称
+    nick_name = Column(String(256), nullable=True) #昵称
     company_id = Column(INTEGER(), nullable=True, default=-1) #公司id
     role_id = Column(INTEGER(), nullable=True, default=-1) #角色id
 

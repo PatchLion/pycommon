@@ -42,66 +42,66 @@ def doResponse(func):
 @doResponse
 def doRegister(request, args=None):
     if args is not None:
-        user = args.get("user", "")
+        user = args.get("username", "")
         pwd = args.get("pwd", "")
-        name = args.get("name", "未命名")
+        name = args.get("nickname", "未命名")
         company_id = args.get("company_id", -1)
         role_id = args.get("role_id", -1)
         if checkDataVaild(user) and checkDataVaild(pwd):
-            exist_objs = records(ContractDB.session(), User, User.user == user)
+            exist_objs = records(ContractDB.session(), User, User.user_name == user)
             if len(exist_objs) > 0:
                 return buildStandResponse(StateCode_UserExist)
             else:
                 pwdmd5 = stringMD5(pwd)  # 加密后的密码
-                new_user = User(user=user, password=pwdmd5, name=name, company_id=company_id, role_id=role_id)
+                new_user = User(user_name=user, password=pwdmd5, nick_name=name, company_id=company_id, role_id=role_id)
                 addOrRecord(ContractDB.session(), new_user)
-                exist_objs = records(ContractDB.session(), User, User.user == user)
+                exist_objs = records(ContractDB.session(), User, User.user_name == user)
                 if len(exist_objs) > 0:
                     returndata = {}
                     returndata["id"] = exist_objs[0].id
-                    returndata["user"] = exist_objs[0].user
-                    returndata["password"] = exist_objs[0].password
-                    returndata["company_id"] = exist_objs[0].company_id
-                    returndata["role_id"] = exist_objs[0].role_id
+                    returndata["username"] = exist_objs[0].user_name
+                    returndata["nickname"] = exist_objs[0].nick_name
                     return buildStandResponse(StateCode_Success, returndata)
                 else:
                     return buildStandResponse(StateCode_FailedCreateUser)
         else:
             return buildStandResponse(StateCode_InvaildParam)
 
-def userRoleID(userID):
-    rs = records(ContractDB.session(), UserAuth, UserAuth.user_id == userID)
-    if len(rs) > 0:
-        return rs[0].role_id
-    else:
-        return None
+#获取角色的授权
+def authByRoleID(id):
+    auths = []
+    if id is not None and id != -1:
+        exist_auths = records(ContractDB.session(), RoleAuth, RoleAuth.role_id == id)
+        auths = [auth.auth for auth in exist_auths]
+    return auths
 
-def ruleWithRoleID(roleID):
-    rs = records(ContractDB.session(), Role, Role.id)
-    if len(rs) > 0:
-        ret = [r.role_value for r in rs]
-        return ret
-    else:
-        return []
-
+#获取用户的授权
+def authByUserID(id):
+    auths = []
+    if id is not None and id != -1:
+        exist_auths = records(ContractDB.session(), UserAuth, UserAuth.user_id == id)
+        auths = [auth.auth for auth in exist_auths]
+    return auths
 
 @doResponse
 def doUserLogin(request, args=None):
     if args is not None:
-        user = args.get("user", "")
+        user = args.get("username", "")
         pwd = args.get("pwd", "")
         if checkDataVaild(user) and checkDataVaild(pwd):
             pwdmd5 = stringMD5(pwd)  # 加密后的密码
-            #print(pwd, "--->", pwdmd5)
-            record = records(ContractDB.session(), User, and_(User.id == user, User.password == pwdmd5))
-            if len(record) > 0:
-                roleID = userRoleID(user)
+            exist_users = records(ContractDB.session(), User, and_(User.user_name == user, User.password == pwdmd5))
+            if len(exist_users) > 0:
+                role_id = exist_users[0].role_id
                 returndata = {}
-                rules = []
-                if roleID is not None:
-                    rules = ruleWithRoleID(roleID)
-                returndata["roles"] = rules
-                returndata["user"] = user
+                returndata["id"] = exist_users[0].id
+                returndata["username"] = exist_users[0].user_name
+                role_data = {}
+                role_data["id"] = role_id
+                role_data["auths"] = authByRoleID(role_id)
+                returndata["role"] = role_data
+                returndata["auths"] = authByUserID(exist_users[0].user_name)
+                returndata["company_id"] = exist_users[0].company_id
                 return buildStandResponse(StateCode_Success, returndata)
             else:
                 return buildStandResponse(StateCode_FailedToLogin)
@@ -232,16 +232,16 @@ def getProjectList(request, args=None):
 @doResponse
 def doCreateRole(request, args=None):
     if args is not None:
-        role_name = args.get("role_name", "")
+        role_name = args.get("name", "")
         if checkDataVaild(role_name):
             objs = records(ContractDB.session(), Role, Role.name == role_name)
             if len(objs) == 0:
                 id = createUuid()
-                size = addOrRecord(ContractDB.session(), Role(role_id=id, role_name=role_name))
+                size = addOrRecord(ContractDB.session(), Role(name=role_name))
                 if size > 0:
                     res_json = {}
-                    res_json["role_id"] = id
-                    res_json["role_name"] = role_name
+                    res_json["id"] = id
+                    res_json["name"] = role_name
                     return buildStandResponse(StateCode_Success, res_json)
                 else:
                     return buildStandResponse(StateCode_FailedToCreateRole)
