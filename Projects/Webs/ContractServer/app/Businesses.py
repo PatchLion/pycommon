@@ -107,33 +107,50 @@ def doUserLogin(request, args=None):
                 return buildStandResponse(StateCode_FailedToLogin)
         else:
             return buildStandResponse(StateCode_InvaildParam)
-'''
+
 @doResponse
 def doUserModify(request, args=None):
     if args is not None:
-        user = args.get("user", "")
-        authority = args.get("authority", "")
-        name = args.get("name", "")
-        if checkDataVaild(user) and (checkDataVaild(authority) or checkDataVaild(name)):
-            record = records(ContractDB.session(), User, User.id == user)
-            if len(record) > 0:
-                existuser = record[0]
-                if checkDataVaild(authority):
-                    existuser.authority_id = authority
-                if checkDataVaild(name):
-                    existuser.name = name
-                addOrRecord(ContractDB.session(), existuser)
-                record = records(ContractDB.session(), User, User.id == user)
+        username= args.get("username", "")
+        nickname= args.get("nickname", None)
+        role_id= args.get("role_id", None)
+        company_id= args.get("company_id", None)
+        password_pair= args.get("password", None)
+        if checkDataVaild(username):
+            objs = records(ContractDB.session(), User, User.user_name == username)
+            if len(objs) > 0:
                 res = {}
-                res["user"] = user
-                res["authority"] = record[0].authority_id
-                res["name"] = record[0].name
-                return buildStandResponse(StateCode_Success, res)
+                existuser = objs[0]
+                if nickname is not None:
+                    existuser.nick_name = nickname
+                    res["nickname"] = True
+                if role_id is not None:
+                    existuser.role_id = role_id
+                    res["role_id"] = True
+                if company_id is not None:
+                    existuser.company_id = company_id
+                    res["company_id"] = True
+                if password_pair is not None:
+                    oldpwd = password_pair.get("old", "")
+                    newpwd = password_pair.get("new", "")
+                    if checkDataVaild(oldpwd) and checkDataVaild(newpwd):
+                        temps = records(ContractDB.session(), User, and_(User.user_name == username, User.password==stringMD5(oldpwd)))
+                        if len(temps) > 0:
+                            existuser.password = stringMD5(newpwd)
+                            res["password"] = True
+                        else:
+                            res["password"] = False
+
+                size =addOrRecord(ContractDB.session(), existuser)
+                if size > 0:
+                    return buildStandResponse(StateCode_Success, res)
+                else:
+                    return buildStandResponse(StateCode_FailedToModifyUserInfo)
             else:
                 return buildStandResponse(StateCode_UserNotExist)
         else:
             return buildStandResponse(StateCode_InvaildParam)
-'''
+
 @doResponse
 def doProjectCreate(request, args=None):
     if args is not None:

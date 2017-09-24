@@ -19,11 +19,10 @@ def login():
     return doUserLogin(request, None)
 
 # 修改用户信息
-'''
-@app.route('/api/user/modify/other', methods=["POST"])
+@app.route('/api/user/modify', methods=["POST"])
 def user_modify():
     return doUserModify(request, None)
-'''
+
 
 # 添加角色
 @app.route('/api/role/create', methods=["GET", "POST"])

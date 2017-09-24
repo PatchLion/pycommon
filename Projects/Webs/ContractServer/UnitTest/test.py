@@ -31,6 +31,15 @@ class ApiTest(unittest.TestCase):
         post(api, {"username": "b", "pwd": "b", "name":"b"}, self.assertEquals, [200, StateCode_Success])
         post(api, {"username": "b", "name":"b"}, self.assertEquals, [200, StateCode_InvaildParam])
 
+    # 用户注册
+    def test_user_modify(self):
+        api = "/api/user/modify"
+
+        get(api, {"username": "a", "nickname": "测试"}, self.assertEquals, [405])
+        post(api, {"username": "a", "nickname": "测试"}, self.assertEquals, [200, StateCode_Success])
+        post(api, {"username": "a", "nickname": "测试", "password":{"old":"b", "new":"c"}}, self.assertEquals, [200, StateCode_Success])
+
+
     #角色注册
     def test_create_role(self):
         api = "/api/role/create"
