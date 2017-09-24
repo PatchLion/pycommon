@@ -107,7 +107,7 @@ class File(TableBase):
     __tablename__ = "File"
 
     id = Column(INTEGER(),primary_key=True, autoincrement=True)  #id
-    contract_id = Column(String(256),nullable=False)  #合同id
+    contract_id = Column(INTEGER(),nullable=False)  #合同id
     classify = Column(String(256),nullable=False) #分类
     name = Column(String(256),nullable=False) #名称
     note = Column(String(256), nullable=True) #备注

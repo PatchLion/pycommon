@@ -57,10 +57,7 @@ def doRegister(request, args=None):
                 addOrRecord(ContractDB.session(), new_user)
                 exist_objs = records(ContractDB.session(), User, User.user_name == user)
                 if len(exist_objs) > 0:
-                    returndata = {}
-                    returndata["id"] = exist_objs[0].id
-                    returndata["username"] = exist_objs[0].user_name
-                    returndata["nickname"] = exist_objs[0].nick_name
+                    returndata = userFromRecord(exist_objs[0])
                     return buildStandResponse(StateCode_Success, returndata)
                 else:
                     return buildStandResponse(StateCode_FailedCreateUser)
@@ -83,6 +80,27 @@ def authByUserID(id):
         auths = [auth.auth for auth in exist_auths]
     return auths
 
+def userFromRecord(record):
+    returndata = {}
+    returndata["id"] = record.id
+    returndata["username"] = record.user_name
+    role_data = {}
+    role_data["id"] = record.role_id
+    role_data["auths"] = authByRoleID(record.role_id)
+    returndata["role"] = role_data
+    returndata["auths"] = authByUserID(record.id)
+    returndata["company_id"] = record.company_id
+
+    return returndata
+@doResponse
+def getUserList(request, args=None):
+    if args is not None:
+        returndata = []
+        exist_users = records(ContractDB.session(), User)
+        for user in exist_users:
+            returndata.append(userFromRecord(user))
+        return buildStandResponse(StateCode_Success, {"users": returndata})
+
 @doResponse
 def doUserLogin(request, args=None):
     if args is not None:
@@ -92,16 +110,7 @@ def doUserLogin(request, args=None):
             pwdmd5 = stringMD5(pwd)  # 加密后的密码
             exist_users = records(ContractDB.session(), User, and_(User.user_name == user, User.password == pwdmd5))
             if len(exist_users) > 0:
-                role_id = exist_users[0].role_id
-                returndata = {}
-                returndata["id"] = exist_users[0].id
-                returndata["username"] = exist_users[0].user_name
-                role_data = {}
-                role_data["id"] = role_id
-                role_data["auths"] = authByRoleID(role_id)
-                returndata["role"] = role_data
-                returndata["auths"] = authByUserID(exist_users[0].user_name)
-                returndata["company_id"] = exist_users[0].company_id
+                returndata = userFromRecord(exist_users[0])
                 return buildStandResponse(StateCode_Success, returndata)
             else:
                 return buildStandResponse(StateCode_FailedToLogin)
@@ -116,6 +125,7 @@ def doUserModify(request, args=None):
         role_id= args.get("role_id", None)
         company_id= args.get("company_id", None)
         password_pair= args.get("password", None)
+        auths= args.get("auths", None)
         if checkDataVaild(username):
             objs = records(ContractDB.session(), User, User.user_name == username)
             if len(objs) > 0:
@@ -130,6 +140,12 @@ def doUserModify(request, args=None):
                 if company_id is not None:
                     existuser.company_id = company_id
                     res["company_id"] = True
+                if auths is not None:
+                    removeRecords(ContractDB.session(), UserAuth, UserAuth.user_id==existuser.id)
+                    auth_records = [UserAuth(user_id=existuser.id, auth=auth) for auth in auths if isinstance(auth, int) and auth > -1]
+                    if len(auth_records) > 0:
+                        size = addOrRecord(ContractDB.session(), auth_records)
+                    res["auths"] = True
                 if password_pair is not None:
                     oldpwd = password_pair.get("old", "")
                     newpwd = password_pair.get("new", "")
@@ -395,6 +411,16 @@ def getContractList(request, args=None):
                 res["date_of_performance"] = cont.date_of_performance
                 res["type_of_performance"] = cont.type_of_performance
                 res["note"] = cont.note
+                files = []
+                file_records = records(ContractDB.session(), File, File.contract_id==cont.id)
+                for f in file_records:
+                    temp = {}
+                    temp["filename"] = f.name
+                    temp["classify"] = f.classify
+                    temp["contract_id"] = f.contract_id
+                    temp["note"] = f.note
+                    files.append(temp)
+                res["files"] = files
                 res_json["contracts"].append(res)
             return buildStandResponse(StateCode_Success, res_json)
         else:
@@ -417,11 +443,22 @@ def doUpload(request, args=None):
             if os.path.exists(fullpath):
                 return buildStandResponse(StateCode_FileExist)
 
-            with open(fullpath, "wb", ) as f:
-                print("Write file to:", fullpath)
-                f.write(base64.b64decode(filedata))
-                addOrRecord(ContractDB.session(), File(contract_id=contract_id, classify=classify, name = filename, note=note))
-                return buildStandResponse(StateCode_Success, {})
+            try:
+                with open(fullpath, "wb", ) as f:
+                    print("Write file to:", fullpath)
+                    filesize = f.write(base64.b64decode(filedata))
+                    if filesize > 0:
+                        size = addOrRecord(ContractDB.session(), File(contract_id=contract_id, classify=classify, name = filename, note=note))
+                        if size > 0:
+                            return buildStandResponse(StateCode_Success, {})
+                        else:
+                            os.remove(fullpath)
+                            return buildStandResponse(StateCode_FailedToCreateFileRecord)
+                    else:
+                        return buildStandResponse(StateCode_FailedToCreateFile)
+            except Exception as e:
+                return buildStandResponse(StateCode_FailedToCreateFile)
+
         else:
             return buildStandResponse(StateCode_InvaildParam)
 

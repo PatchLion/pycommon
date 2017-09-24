@@ -23,11 +23,17 @@ def login():
 def user_modify():
     return doUserModify(request, None)
 
+# 获取用户列表
+@app.route('/api/user/list', methods=["GET"])
+def user_list():
+    return getUserList(request, None)
 
 # 添加角色
 @app.route('/api/role/create', methods=["GET", "POST"])
 def role_create():
     return doCreateRole(request, None)
+
+# 修改用户权限
 
 # 获取项目列表
 @app.route('/api/project/list', methods=["GET"])

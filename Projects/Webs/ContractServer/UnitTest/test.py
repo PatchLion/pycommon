@@ -31,12 +31,12 @@ class ApiTest(unittest.TestCase):
         post(api, {"username": "b", "pwd": "b", "name":"b"}, self.assertEquals, [200, StateCode_Success])
         post(api, {"username": "b", "name":"b"}, self.assertEquals, [200, StateCode_InvaildParam])
 
-    # 用户注册
+    # 修改用户属性
     def test_user_modify(self):
         api = "/api/user/modify"
 
         get(api, {"username": "a", "nickname": "测试"}, self.assertEquals, [405])
-        post(api, {"username": "a", "nickname": "测试"}, self.assertEquals, [200, StateCode_Success])
+        post(api, {"username": "a", "nickname": "测试", "auths":[1, 3]}, self.assertEquals, [200, StateCode_Success])
         post(api, {"username": "a", "nickname": "测试", "password":{"old":"b", "new":"c"}}, self.assertEquals, [200, StateCode_Success])
 
 
@@ -59,6 +59,7 @@ class ApiTest(unittest.TestCase):
         post(api, {"username": "a", "pwd": "b"}, self.assertEquals, [200, StateCode_Success])
         post(api, {"username": "a", "pwd": "c"}, self.assertEquals, [200, StateCode_FailedToLogin])
         post(api, {"username": "ccc", "pwd": "c"}, self.assertEquals, [200, StateCode_FailedToLogin])
+
 
     #创建项目
     def test_project_create(self):
@@ -86,6 +87,21 @@ class ApiTest(unittest.TestCase):
 
         post(api, {"name": "三峡大坝合同3", "project_id":2, "company_id":1, "second_party_name":"财务公司"}, self.assertEquals, [200, StateCode_Success])
         post(api, {"name": "三峡大坝合同4", "project_id":2, "company_id":1, "second_party_name":"人力公司"}, self.assertEquals, [200, StateCode_Success])
+
+    # 上传合同附件
+    def test_contract_upload(self):
+        api = '/api/contract/upload'
+
+
+        removeRecords(ContractDB.session(), File)
+        path = os.path.split(os.path.realpath(__file__))[0] + "/../" + FILE_RESTORE_ROOT_DIR
+        if os.path.exists(path):
+            shutil.rmtree(path)
+
+        get(api, {"filename": "test.txt", "filedata": "1111=", "classify": "测试", "contract_id": 1}, self.assertEquals, [405])
+        post(api, {"filename": "test.txt", "filedata": "1111=", "classify": "测试", "contract_id": 1}, self.assertEquals, [200, StateCode_Success])
+        post(api, {"filename": "test.txt", "filedata": "1111=", "classify": "测试", "contract_id": 1}, self.assertEquals, [200, StateCode_FileExist])
+
 
     #获取合同
     def test_contract_list(self):
@@ -122,18 +138,6 @@ class ApiTest(unittest.TestCase):
         post(api, {"name": "公司1"}, self.assertEquals, [200, StateCode_CompanyExist])
         post(api, {"name": "公司2"}, self.assertEquals, [200, StateCode_Success])
 
-    # 上传合同附件
-    def test_contract_upload(self):
-        api = '/api/contract/upload'
-        path = os.path.split(os.path.realpath(__file__))[0] + "/../" + FILE_RESTORE_ROOT_DIR
-        if os.path.exists(path):
-            shutil.rmtree(path)
-
-        get(api, {"filename": "test.txt", "filedata": "1111=", "classify": "测试", "contract_id": 1}, self.assertEquals, [405])
-        post(api, {"filename": "test.txt", "filedata": "1111=", "classify": "测试", "contract_id": 1}, self.assertEquals, [200, StateCode_Success])
-        post(api, {"filename": "test.txt", "filedata": "1111=", "classify": "测试", "contract_id": 1}, self.assertEquals, [200, StateCode_FileExist])
-
-
     # 创建审批请求
     def test_ask_approve_create(self):
         api = '/api/project/ask_approve/create'
@@ -150,3 +154,9 @@ class ApiTest(unittest.TestCase):
 
         get(api, {"user_id": 1}, self.assertEquals, [405])
         post(api, {"user_id": 1}, self.assertEquals, [200, StateCode_Success])
+
+    # 用户列表
+    def test_user_list(self):
+        api = "/api/user/list"
+        post(api, {"username": "a", "pwd": "b"}, self.assertEquals, [405])
+        get(api, {}, self.assertEquals, [200, StateCode_Success])
