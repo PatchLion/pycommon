@@ -3,7 +3,9 @@ from Projects.Webs.ContractServer.UnitTest.TestFunctions import *
 from Projects.Webs.ContractServer.database.ContractDatabase import *
 from Projects.Webs.ContractServer.app.StateCodes import *
 from MySqlAlchemy.DBOperator import *
-import base64
+from Projects.Webs.ContractServer.settings import *
+import shutil, os
+
 
 #get("/api/companies/list")
 
@@ -16,6 +18,8 @@ class ApiTest(unittest.TestCase):
         removeRecords(ContractDB.session(), Contract)
         removeRecords(ContractDB.session(), ContractHistory)
         removeRecords(ContractDB.session(), Company)
+        removeRecords(ContractDB.session(), AskApprove)
+
 
     # 用户注册
     def test_user_create(self):
@@ -112,7 +116,28 @@ class ApiTest(unittest.TestCase):
     # 上传合同附件
     def test_contract_upload(self):
         api = '/api/contract/upload'
+        path = os.path.split(os.path.realpath(__file__))[0] + "/../" + FILE_RESTORE_ROOT_DIR
+        if os.path.exists(path):
+            shutil.rmtree(path)
 
         get(api, {"filename": "test.txt", "filedata": "1111=", "classify": "测试", "contract_id": 1}, self.assertEquals, [405])
         post(api, {"filename": "test.txt", "filedata": "1111=", "classify": "测试", "contract_id": 1}, self.assertEquals, [200, StateCode_Success])
         post(api, {"filename": "test.txt", "filedata": "1111=", "classify": "测试", "contract_id": 1}, self.assertEquals, [200, StateCode_FileExist])
+
+
+    # 创建审批请求
+    def test_ask_approve_create(self):
+        api = '/api/project/ask_approve/create'
+
+        get(api, {"project_id": 0,"first_approve_user_id": 1,"second_approve_user_id": 2}, self.assertEquals, [405])
+        post(api, {"project_id": 0, "first_approve_user_id": 3, "second_approve_user_id": 2}, self.assertEquals, [200, StateCode_Success])
+        post(api, {"project_id": 0, "first_approve_user_id": 3, "second_approve_user_id": 2}, self.assertEquals, [200, StateCode_Success])
+        post(api, {"project_id": 2, "first_approve_user_id": 1, "second_approve_user_id": 3}, self.assertEquals, [200, StateCode_Success])
+        post(api, {"project_id": 1, "first_approve_user_id": 1, "second_approve_user_id": 3}, self.assertEquals, [200, StateCode_Success])
+
+    # 获取审批请求
+    def test_ask_approve_get(self):
+        api = '/api/project/ask_approve/get'
+
+        get(api, {"user_id": 1}, self.assertEquals, [405])
+        post(api, {"user_id": 1}, self.assertEquals, [200, StateCode_Success])

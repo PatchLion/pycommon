@@ -100,7 +100,7 @@ class AskApprove(TableBase):
     id = Column(INTEGER(), primary_key=True, autoincrement=True)  #id
     project_id = Column(INTEGER(), nullable=False)  #项目id
     user_id = Column(INTEGER(), nullable=False)  #用户id
-    isFirst = Column(BOOLEAN(), nullable=False)  #是否是首次审批
+    is_first = Column(BOOLEAN(), nullable=False)  #是否是首次审批
 
 #文件上传记录
 class File(TableBase):

@@ -275,7 +275,54 @@ def doCreateRole(request, args=None):
             else:
                 return buildStandResponse(StateCode_RoleExist)
         else:
+            return buildStandResponse(StateCode_InvaildParam)\
+
+
+@doResponse
+def doAskApproveCreate(request, args=None):
+    if args is not None:
+        project_id = args.get("project_id", -1)
+        first_approve_user_id = args.get("first_approve_user_id", -1)
+        second_approve_user_id = args.get("second_approve_user_id", -1)
+        if project_id > -1 and first_approve_user_id > -1 and second_approve_user_id > -1:
+            new_objs = [AskApprove(project_id=project_id,user_id=first_approve_user_id,is_first=True),
+                        AskApprove(project_id=project_id, user_id=second_approve_user_id, is_first=False)]
+            size = addOrRecord(ContractDB.session(), new_objs)
+            if size > 0:
+                return buildStandResponse(StateCode_Success, {})
+            else:
+                return buildStandResponse(StateCode_FailedToCreateProjectAskApprove)
+        else:
             return buildStandResponse(StateCode_InvaildParam)
+
+@doResponse
+def getAskApprove(request, args=None):
+    if args is not None:
+        user_id = args.get("user_id", -1)
+        if user_id > -1:
+            objs = records(ContractDB.session(), AskApprove)
+
+            approves = {}
+
+            for obj in objs:
+                if obj.project_id not in approves.keys():
+                    approves[obj.project_id] = [-1, -1]
+
+                if obj.is_first:
+                    approves[obj.project_id][0] = obj.user_id
+                else:
+                    approves[obj.project_id][1] = obj.user_id
+
+            need_noitfy = []
+            #查找包含user，并且user需要通知的项目
+            for project_id, users in approves.items():
+                if users[0] == user_id or (users[0] == -1 and users[1] == user_id):
+                    need_noitfy.append(project_id)
+
+            return buildStandResponse(StateCode_Success, {"project_ids":need_noitfy})
+        else:
+            return buildStandResponse(StateCode_InvaildParam)
+
 @doResponse
 def getCompanies(request, args=None):
     if args is not None:
