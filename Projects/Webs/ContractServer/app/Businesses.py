@@ -179,7 +179,7 @@ def doProjectCreate(request, args=None):
                 addOrRecord(ContractDB.session(), project)
                 record = records(ContractDB.session(), Project, Project.name == name)
                 if len(record) > 0:
-                    res = projectFromRecord(record)
+                    res = projectFromRecord(record[0])
                     return buildStandResponse(StateCode_Success, res)
                 else:
                     return buildStandResponse(StateCode_FailedToCreateProject)
