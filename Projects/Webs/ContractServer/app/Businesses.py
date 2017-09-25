@@ -88,8 +88,8 @@ def userFromRecord(record):
     returndata["role_id"] = record.role_id
     returndata["auths"] = authByUserID(record.id) + authByRoleID(record.role_id)
     returndata["company_id"] = record.company_id
-
     return returndata
+
 @doResponse
 def getUserList(request, args=None):
     if args is not None:
@@ -171,18 +171,15 @@ def doProjectCreate(request, args=None):
         name = args.get("name", "")
         money = args.get("money", 0)
         last_date = args.get("last_date", 0)
+        rate_of_profit = args.get("rate_of_profit", 0.1)
         if checkDataVaild(name):
             record = records(ContractDB.session(), Project, Project.name == name)
             if len(record) == 0:
-                project = Project(name=name, money=money, last_date=last_date)
+                project = Project(name=name, money=money, last_date=last_date, rate_of_profit=rate_of_profit)
                 addOrRecord(ContractDB.session(), project)
                 record = records(ContractDB.session(), Project, Project.name == name)
                 if len(record) > 0:
-                    res = {}
-                    res["id"] = record[0].id
-                    res["name"] = record[0].name
-                    res["money"] = record[0].money
-                    res["last_date"] = record[0].last_date
+                    res = projectFromRecord(record)
                     return buildStandResponse(StateCode_Success, res)
                 else:
                     return buildStandResponse(StateCode_FailedToCreateProject)
@@ -270,6 +267,18 @@ def doContractCreate(request, args=None):
         else:
             return buildStandResponse(StateCode_InvaildParam)
 
+
+def projectFromRecord(record):
+    returndata = {}
+    returndata["id"] = record.id
+    returndata["name"] = record.name
+    returndata["money"] = record.money
+    returndata["last_date"] = record.last_date
+    returndata["rate_of_profit"] = record.rate_of_profit
+    returndata["first_approve_user_id"] = record.first_approve_user_id
+    returndata["second_approve_user_id"] = record.second_approve_user_id
+    return returndata
+
 @doResponse
 def getProjectList(request, args=None):
     if args is not None:
@@ -277,13 +286,7 @@ def getProjectList(request, args=None):
         project_json = {}
         project_json["projects"] = []
         for pro in projects:
-            temp = {}
-            temp["id"] = pro.id
-            temp["name"] = pro.name
-            temp["money"] = pro.money
-            temp["last_date"] = pro.last_date
-            temp["first_approve_user_id"] = pro.first_approve_user_id
-            temp["second_approve_user_id"] = pro.second_approve_user_id
+            temp = projectFromRecord(pro)
             project_json["projects"].append(temp)
         return buildStandResponse(StateCode_Success, project_json)
 
