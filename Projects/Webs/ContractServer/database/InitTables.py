@@ -18,7 +18,7 @@ addOrRecord(ContractDB.session(), Role(name ="测试角色2")) #
 removeRecords(ContractDB.session(), User)
 addOrRecord(ContractDB.session(), User(user_name="root", password=stringMD5("root"), nick_name="root"))
 addOrRecord(ContractDB.session(), User(user_name="admin", password=stringMD5("admin"), nick_name="Adminstrator"))
-addOrRecord(ContractDB.session(), User(user_name="simple", password=stringMD5("simple"), nick_name="SimpleLove"))
+addOrRecord(ContractDB.session(), User(user_name="simpleLove", password=stringMD5("simpleLove"), nick_name="SimpleLove"))
 addOrRecord(ContractDB.session(), User(user_name="patchlion", password=stringMD5("patchlion"), nick_name="打补丁的狮子"))
 
 #增加项目
