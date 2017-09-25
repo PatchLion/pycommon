@@ -84,11 +84,8 @@ def userFromRecord(record):
     returndata = {}
     returndata["id"] = record.id
     returndata["username"] = record.user_name
-    role_data = {}
-    role_data["id"] = record.role_id
-    role_data["auths"] = authByRoleID(record.role_id)
-    returndata["role"] = role_data
-    returndata["auths"] = authByUserID(record.id)
+    returndata["role_id"] = record.role_id
+    returndata["auths"] = authByUserID(record.id) + authByRoleID(record.role_id)
     returndata["company_id"] = record.company_id
 
     return returndata
