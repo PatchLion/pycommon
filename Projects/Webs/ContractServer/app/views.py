@@ -33,6 +33,12 @@ def user_list():
 def role_create():
     return doCreateRole(request, None)
 
+# 获取角色列表
+@app.route('/api/role/list', methods=["GET"])
+def role_list():
+    return getRoleList(request, None)
+
+
 # 修改用户权限
 
 # 获取项目列表

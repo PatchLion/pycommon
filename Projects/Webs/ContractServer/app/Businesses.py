@@ -80,12 +80,22 @@ def authByUserID(id):
         auths = [auth.auth for auth in exist_auths]
     return auths
 
+def roleNameByID(id):
+    if id > -1:
+        roles = records(ContractDB.session(), Role, Role.id)
+        if len(roles) > 0:
+            return roles[0].name
+
+    return ""
+
+
 def userFromRecord(record):
     returndata = {}
     returndata["id"] = record.id
     returndata["username"] = record.user_name
     returndata["nickname"] = record.nick_name
     returndata["role_id"] = record.role_id
+    returndata["role_name"] = roleNameByID(record.role_id)
     returndata["auths"] = authByUserID(record.id) + authByRoleID(record.role_id)
     returndata["company_id"] = record.company_id
     return returndata
@@ -105,7 +115,7 @@ def doUserLogin(request, args=None):
         user = args.get("username", "")
         pwd = args.get("pwd", "")
         if checkDataVaild(user) and checkDataVaild(pwd):
-            pwdmd5 = stringMD5(pwd)  # 加密后的密码
+            pwdmd5 = stringMD5(pwd)  # 加密后的密码)
             exist_users = records(ContractDB.session(), User, and_(User.user_name == user, User.password == pwdmd5))
             if len(exist_users) > 0:
                 returndata = userFromRecord(exist_users[0])
@@ -368,6 +378,19 @@ def getCompanies(request, args=None):
             temp["id"] = obj.id
             temp["name"] = obj.name
             res_json["companies"].append(temp)
+        return buildStandResponse(StateCode_Success, res_json)
+
+@doResponse
+def getRoleList(request, args=None):
+    if args is not None:
+        objects = records(ContractDB.session(), Role)
+        res_json = {}
+        res_json["roles"] = []
+        for obj in objects:
+            temp = {}
+            temp["id"] = obj.id
+            temp["name"] = obj.name
+            res_json["roles"].append(temp)
         return buildStandResponse(StateCode_Success, res_json)
 
 @doResponse
