@@ -9,6 +9,10 @@ def records(session, type, cond = None):
         rs = session.query(type).filter(cond).all()
     return rs
 
+'''联合查询'''
+def unionRecords(session, src_type, dest_type, cond):
+    return session.query(src_type, dest_type).filter(cond).all()
+
 '''记录数量'''
 def recordsCount(session, type, cond = None):
     return len(records(session, type, cond))
@@ -32,11 +36,11 @@ def addOrRecord(session, records):
     return size
 
 '''删除纪录'''
-def removeRecords(session, type, conds = None):
+def removeRecords(session, t, conds = None):
     size = 0
     if conds is None:
-        size = session.query(type).delete(synchronize_session=False)
+        size = session.query(t).delete(synchronize_session=False)
     else:
-        size = session.query(type).filter(conds).delete(synchronize_session=False)
+        size = session.query(t).filter(conds).delete(synchronize_session=False)
     session.commit()
-    print("Total {0} record removed!".format(size))
+    print("Total {0} record removed! [{1}]".format(size, type(t)))
