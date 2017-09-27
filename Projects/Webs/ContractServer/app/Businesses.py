@@ -179,13 +179,14 @@ def doUserModify(request, args=None):
 def doProjectCreate(request, args=None):
     if args is not None:
         name = args.get("name", "")
-        money = args.get("money", 0)
-        last_date = args.get("last_date", 0)
+        money = args.get("money", -1)
+        start_date = args.get("start_date", -1)
+        last_date = args.get("last_date", -1)
         rate_of_profit = args.get("rate_of_profit", 0.1)
-        if checkDataVaild(name):
+        if checkDataVaild(name) and money > 0 and last_date > start_date and last_date > -1 and start_date > -1:
             record = records(ContractDB.session(), Project, Project.name == name)
             if len(record) == 0:
-                project = Project(name=name, money=money, last_date=last_date, rate_of_profit=rate_of_profit)
+                project = Project(name=name, money=money, start_date=start_date, last_date=last_date, rate_of_profit=rate_of_profit)
                 addOrRecord(ContractDB.session(), project)
                 record = records(ContractDB.session(), Project, Project.name == name)
                 if len(record) > 0:
@@ -283,6 +284,7 @@ def projectFromRecord(record):
     returndata["id"] = record.id
     returndata["name"] = record.name
     returndata["money"] = record.money
+    returndata["start_date"] = record.start_date
     returndata["last_date"] = record.last_date
     returndata["rate_of_profit"] = record.rate_of_profit
     returndata["first_approve_user_id"] = record.first_approve_user_id

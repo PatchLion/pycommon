@@ -63,8 +63,8 @@ class ApiTest(unittest.TestCase):
         api = '/api/project/create'
         removeRecords(ContractDB.session(), Project)
         get(api, {"name": "三峡大坝", "money": 100000000, "last_date": 10021301203}, self.assertEquals,[405])
-        post(api, {"name": "三峡大坝", "money": 100000000, "last_date": 10021301203}, self.assertEquals, [200, StateCode_Success])
-        post(api, {"name": "三峡大坝", "money": 87766, "last_date": 43424}, self.assertEquals, [200, StateCode_ProjectExist])
+        post(api, {"name": "三峡大坝", "money": 100000000, "start_date": 100000000, "last_date": 10021301203}, self.assertEquals, [200, StateCode_Success])
+        post(api, {"name": "三峡大坝", "money": 100000000, "start_date": 100000000, "last_date": 10021301203}, self.assertEquals, [200, StateCode_ProjectExist])
 
         #获取项目列表
         api = '/api/project/list'
