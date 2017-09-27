@@ -24,17 +24,17 @@ def user_modify():
     return doUserModify(request, None)
 
 # 获取用户列表
-@app.route('/api/user/list', methods=["GET"])
+@app.route('/api/user/list', methods=["POST"])
 def user_list():
     return getUserList(request, None)
 
 # 添加角色
-@app.route('/api/role/create', methods=["GET", "POST"])
+@app.route('/api/role/create', methods=["POST"])
 def role_create():
     return doCreateRole(request, None)
 
 # 获取角色列表
-@app.route('/api/role/list', methods=["GET"])
+@app.route('/api/role/list', methods=["POST"])
 def role_list():
     return getRoleList(request, None)
 
@@ -42,7 +42,7 @@ def role_list():
 # 修改用户权限
 
 # 获取项目列表
-@app.route('/api/project/list', methods=["GET"])
+@app.route('/api/project/list', methods=["POST"])
 def project_list():
     return getProjectList(request, None)
 
@@ -67,7 +67,7 @@ def create_contracts_history():
     return doContractHistory(request, None)
 
 # 获取公司列表
-@app.route('/api/companies/list', methods=["GET"])
+@app.route('/api/companies/list', methods=["POST"])
 def get_companies():
     return getCompanies(request, None)
 

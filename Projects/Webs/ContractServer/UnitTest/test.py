@@ -18,18 +18,16 @@ class ApiTest(unittest.TestCase):
         # 角色注册
         api = "/api/role/create"
         removeRecords(ContractDB.session(), Role)
-        get(api, {"name": "role_a"}, self.assertEquals, [200, StateCode_Success])
-        get(api, {"name": "role_a"}, self.assertEquals, [200, StateCode_RoleExist])
+        get(api, {"name": "role_a"}, self.assertEquals, [405])
         post(api, {"name": "role_b"}, self.assertEquals, [200, StateCode_Success])
         post(api, {"name": "role_b"}, self.assertEquals, [200, StateCode_RoleExist])
-        get(api, {}, self.assertEquals, [200, StateCode_InvaildParam])
         post(api, {}, self.assertEquals, [200, StateCode_InvaildParam])
 
 
         # 角色列表
         api = "/api/role/list"
-        post(api, {}, self.assertEquals, [405])
-        get(api, {}, self.assertEquals, [200, StateCode_Success])
+        get(api, {}, self.assertEquals, [405])
+        post(api, {}, self.assertEquals, [200, StateCode_Success])
 
         # 用户注册
         api = "/api/user/register"
@@ -56,8 +54,8 @@ class ApiTest(unittest.TestCase):
 
         # 用户列表
         api = "/api/user/list"
-        post(api, {}, self.assertEquals, [405])
-        get(api, {}, self.assertEquals, [200, StateCode_Success])
+        get(api, {}, self.assertEquals, [405])
+        post(api, {}, self.assertEquals, [200, StateCode_Success])
 
         #创建项目
         api = '/api/project/create'
@@ -68,8 +66,8 @@ class ApiTest(unittest.TestCase):
 
         #获取项目列表
         api = '/api/project/list'
-        post(api, {}, self.assertEquals, [405])
-        get(api, {}, self.assertEquals, [200, StateCode_Success])
+        get(api, {}, self.assertEquals, [405])
+        post(api, {}, self.assertEquals, [200, StateCode_Success])
 
         #创建合同
         api = '/api/contract/create'
@@ -127,8 +125,8 @@ class ApiTest(unittest.TestCase):
         # 获取公司列表
         api = '/api/companies/list'
 
-        post(api, {}, self.assertEquals, [405])
-        get(api, {}, self.assertEquals, [200, StateCode_Success])
+        get(api, {}, self.assertEquals, [405])
+        post(api, {}, self.assertEquals, [200, StateCode_Success])
 
         # 创建审批请求
         api = '/api/project/ask_approve/create'
