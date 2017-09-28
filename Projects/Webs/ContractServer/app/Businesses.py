@@ -80,6 +80,14 @@ def authByUserID(id):
         auths = [auth.auth for auth in exist_auths]
     return auths
 
+#获取公司名称
+def companyByID(id):
+    rs = records(ContractDB.session(), Company, Company.id == id)
+    if len(rs) > 0:
+        return rs[0].name
+    else:
+        return ""
+
 def roleNameByID(id):
     if id > -1:
         roles = records(ContractDB.session(), Role, Role.id)
@@ -98,6 +106,7 @@ def userFromRecord(record):
     returndata["role_name"] = roleNameByID(record.role_id)
     returndata["auths"] = authByUserID(record.id) + authByRoleID(record.role_id)
     returndata["company_id"] = record.company_id
+    returndata["company_name"] = companyByID(record.company_id)
     return returndata
 
 @doResponse
