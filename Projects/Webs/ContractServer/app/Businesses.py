@@ -88,6 +88,15 @@ def companyByID(id):
     else:
         return ""
 
+#获取用户昵称
+def userNickNameByID(id):
+    rs = records(ContractDB.session(), User, User.id == id)
+    if len(rs) > 0:
+        return rs[0].nick_name
+    else:
+        return ""
+
+#获取角色名称
 def roleNameByID(id):
     if id > -1:
         roles = records(ContractDB.session(), Role, Role.id)
@@ -297,7 +306,9 @@ def projectFromRecord(record):
     returndata["last_date"] = record.last_date
     returndata["rate_of_profit"] = record.rate_of_profit
     returndata["first_approve_user_id"] = record.first_approve_user_id
+    returndata["first_approve_user_nickname"] = userNickNameByID(record.first_approve_user_id)
     returndata["second_approve_user_id"] = record.second_approve_user_id
+    returndata["second_approve_user_nickname"] = userNickNameByID(record.second_approve_user_id)
     return returndata
 
 @doResponse
