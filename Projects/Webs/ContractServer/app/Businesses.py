@@ -294,7 +294,20 @@ def projectFromRecord(record):
 @doResponse
 def getProjectList(request, args=None):
     if args is not None:
-        projects = records(ContractDB.session(), Project)
+        id = args.get("id", -1)
+        name = args.get("name", "")
+        cond = None
+        if id > -1 and checkDataVaild(name):
+            cond = and_(Project.id == id, Project.name == name)
+        elif id > -1:
+            cond = (Project.id == id)
+        elif checkDataVaild(name):
+            cond = (Project.name == name)
+        if cond is None:
+            projects = records(ContractDB.session(), Project)
+        else:
+            projects = records(ContractDB.session(), Project, cond)
+
         project_json = {}
         project_json["projects"] = []
         for pro in projects:

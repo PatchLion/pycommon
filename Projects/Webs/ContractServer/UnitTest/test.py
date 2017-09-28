@@ -68,6 +68,7 @@ class ApiTest(unittest.TestCase):
         api = '/api/project/list'
         get(api, {}, self.assertEquals, [405])
         post(api, {}, self.assertEquals, [200, StateCode_Success])
+        post(api, {"id":1, "name": "三峡大坝"}, self.assertEquals, [200, StateCode_Success])
 
         #创建合同
         api = '/api/contract/create'
