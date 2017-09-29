@@ -101,9 +101,10 @@ class AskApprove(TableBase):
 
     id = Column(INTEGER(), primary_key=True, autoincrement=True)  #id
     project_id = Column(INTEGER(), nullable=False)  #项目id
-    user_id = Column(INTEGER(), nullable=False)  #用户id
-    is_first = Column(BOOLEAN(), nullable=False)  #是否是首次审批
-    is_pass = Column(BOOLEAN(), nullable=True, default=False)  #是否通过审批
+    first_user_id = Column(INTEGER(), nullable=False)  #第一审批用户ID
+    second_user_id = Column(INTEGER(), nullable=False)  #第二审批用户ID
+    is_first_passed = Column(BOOLEAN(), nullable=False)  #是否第一审批用户通过
+    is_second_passed = Column(BOOLEAN(), nullable=True, default=False)  #是否第二审批用户通过
 
 #文件上传记录
 class File(TableBase):

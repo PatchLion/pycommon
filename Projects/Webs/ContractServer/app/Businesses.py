@@ -311,15 +311,12 @@ def projectFromRecord(record):
     returndata["rate_of_profit"] = record.rate_of_profit
     apprs = approveInfoByProjectID(record.id)
     if len(apprs) >  0:
-        for appr in apprs:
-            if appr.is_first:
-                returndata["first_approve_user_id"] = appr.user_id
-                returndata["first_approve_user_nickname"] = userNickNameByID(appr.user_id)
-                returndata["is_first_approve_user_passed"] = appr.is_pass
-            else:
-                returndata["second_approve_user_id"] = appr.user_id
-                returndata["second_approve_user_nickname"] = userNickNameByID(appr.user_id)
-                returndata["is_second_approve_user_passed"] = appr.is_pass
+        returndata["first_approve_user_id"] = apprs[0].first_user_id
+        returndata["first_approve_user_nickname"] = userNickNameByID(apprs[0].first_user_id)
+        returndata["is_first_approve_user_passed"] = apprs[0].is_first_passed
+        returndata["second_approve_user_id"] = apprs[0].second_user_id
+        returndata["second_approve_user_nickname"] = userNickNameByID(apprs[0].second_user_id)
+        returndata["is_second_approve_user_passed"] = apprs[0].is_second_passed
     else:
         returndata["first_approve_user_id"] = -1
         returndata["first_approve_user_nickname"] = ""
@@ -381,9 +378,9 @@ def doAskApproveCreate(request, args=None):
         project_id = args.get("project_id", -1)
         first_approve_user_id = args.get("first_approve_user_id", -1)
         second_approve_user_id = args.get("second_approve_user_id", -1)
+
         if project_id > -1 and first_approve_user_id > -1 and second_approve_user_id > -1:
-            new_objs = [AskApprove(project_id=project_id,user_id=first_approve_user_id,is_first=True),
-                        AskApprove(project_id=project_id, user_id=second_approve_user_id, is_first=False)]
+            new_objs = [AskApprove(project_id=project_id,first_user_id=first_approve_user_id, is_first_passed=False, second_user_id=second_approve_user_id, is_second_passed=False)]
             size = addOrRecord(ContractDB.session(), new_objs)
             if size > 0:
                 return buildStandResponse(StateCode_Success, {})
@@ -397,24 +394,17 @@ def getAskApprove(request, args=None):
     if args is not None:
         user_id = args.get("user_id", -1)
         if user_id > -1:
-            objs = records(ContractDB.session(), AskApprove)
-
-            approves = {}
-
-            for obj in objs:
-                if obj.project_id not in approves.keys():
-                    approves[obj.project_id] = [-1, -1]
-
-                if obj.is_first:
-                    approves[obj.project_id][0] = obj.user_id
-                else:
-                    approves[obj.project_id][1] = obj.user_id
+            objs = records(ContractDB.session(), AskApprove, or_(AskApprove.first_user_id==user_id, AskApprove.second_user_id==user_id))
 
             need_noitfy = []
             #查找包含user，并且user需要通知的项目
-            for project_id, users in approves.items():
-                if users[0] == user_id or (users[0] == -1 and users[1] == user_id):
-                    need_noitfy.append(project_id)
+            for obj in objs:
+                if user_id == obj.first_user_id and not obj.is_first_passed:
+                    if obj.project_id not in need_noitfy:
+                        need_noitfy.append(obj.project_id)
+                if user_id == obj.second_user_id and obj.is_first_passed and obj.is_second_passed:
+                    if obj.project_id not in need_noitfy:
+                        need_noitfy.append(obj.project_id)
 
             return buildStandResponse(StateCode_Success, {"project_ids":need_noitfy})
         else:
