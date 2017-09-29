@@ -296,6 +296,10 @@ def doContractCreate(request, args=None):
         else:
             return buildStandResponse(StateCode_InvaildParam)
 
+#获取项目审批信息
+def approveInfoByProjectID(id):
+    objs = records(ContractDB.session(), AskApprove, AskApprove.project_id==id)
+    return objs
 
 def projectFromRecord(record):
     returndata = {}
@@ -305,10 +309,24 @@ def projectFromRecord(record):
     returndata["start_date"] = record.start_date
     returndata["last_date"] = record.last_date
     returndata["rate_of_profit"] = record.rate_of_profit
-    returndata["first_approve_user_id"] = record.first_approve_user_id
-    returndata["first_approve_user_nickname"] = userNickNameByID(record.first_approve_user_id)
-    returndata["second_approve_user_id"] = record.second_approve_user_id
-    returndata["second_approve_user_nickname"] = userNickNameByID(record.second_approve_user_id)
+    apprs = approveInfoByProjectID(record.id)
+    if len(apprs) >  0:
+        for appr in apprs:
+            if appr.is_first:
+                returndata["first_approve_user_id"] = appr.user_id
+                returndata["first_approve_user_nickname"] = userNickNameByID(appr.user_id)
+                returndata["is_first_approve_user_passed"] = appr.is_pass
+            else:
+                returndata["second_approve_user_id"] = appr.user_id
+                returndata["second_approve_user_nickname"] = userNickNameByID(appr.user_id)
+                returndata["is_second_approve_user_passed"] = appr.is_pass
+    else:
+        returndata["first_approve_user_id"] = -1
+        returndata["first_approve_user_nickname"] = ""
+        returndata["is_first_approve_user_passed"] = False
+        returndata["second_approve_user_id"] = -1
+        returndata["second_approve_user_nickname"] = ""
+        returndata["is_second_approve_user_passed"] = False
     return returndata
 
 @doResponse

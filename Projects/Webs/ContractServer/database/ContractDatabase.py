@@ -92,8 +92,8 @@ class Project(TableBase):
     rate_of_profit = Column(Float(), nullable=True, default=0.1) #项目利润率
     start_date = Column(INTEGER(), nullable=True, default=-1) #项目开始日期，时间戳
     last_date = Column(INTEGER(), nullable=True, default=-1) #项目到期日期，时间戳
-    first_approve_user_id = Column(INTEGER(), nullable=True, default=-1) #首次审批用户
-    second_approve_user_id = Column(INTEGER(), nullable=True, default=-1) #第二次审批用户
+    #first_approve_user_id = Column(INTEGER(), nullable=True, default=-1) #首次审批用户
+    #second_approve_user_id = Column(INTEGER(), nullable=True, default=-1) #第二次审批用户
 
 #审批申请表
 class AskApprove(TableBase):
@@ -103,6 +103,7 @@ class AskApprove(TableBase):
     project_id = Column(INTEGER(), nullable=False)  #项目id
     user_id = Column(INTEGER(), nullable=False)  #用户id
     is_first = Column(BOOLEAN(), nullable=False)  #是否是首次审批
+    is_pass = Column(BOOLEAN(), nullable=True, default=False)  #是否通过审批
 
 #文件上传记录
 class File(TableBase):
