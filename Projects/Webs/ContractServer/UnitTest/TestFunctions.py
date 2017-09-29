@@ -1,7 +1,7 @@
 import requests
 import json
 
-SERVER = "http://182.61.25.137:5000"
+SERVER = "http://127.0.0.1:5000"
 
 def get(api, param, equlfunc, compares):
     url = SERVER + api

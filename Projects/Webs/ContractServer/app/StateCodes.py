@@ -24,6 +24,8 @@ StateCode_FailedToCreateProjectAskApprove = 1020
 StateCode_FailedToModifyUserInfo = 1021
 StateCode_FailedToCreateFile = 1022
 StateCode_FailedToCreateFileRecord = 1023
+StateCode_ProjectAskApproveNotExist = 1024
+StateCode_FailedToSetProjectApprove = 1025
 
 StateCodeDescriptions = {
 StateCode_Success : "成功",
@@ -50,7 +52,9 @@ StateCode_ProjectAskApproveExist: "项目审批请求已存在",
 StateCode_FailedToCreateProjectAskApprove: "项目审批请求创建失败",
 StateCode_FailedToModifyUserInfo: "修改用户属性失败",
 StateCode_FailedToCreateFile: "创建文件失败",
-StateCode_FailedToCreateFileRecord: "创建文件记录失败"
+StateCode_FailedToCreateFileRecord: "创建文件记录失败",
+StateCode_ProjectAskApproveNotExist: "项目审批请求不存在",
+StateCode_FailedToSetProjectApprove: "设置项目审批状态失败"
 }
 
 
@@ -69,3 +73,10 @@ def printStateCodes():
 
 if __name__ == "__main__":
     printStateCodes()
+
+
+#审批状态
+Approve_Passed = 2 #通过
+Approve_Rejected = 1 #拒绝
+Approve_Waiting = 0 #等待
+

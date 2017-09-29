@@ -380,7 +380,7 @@ def doAskApproveCreate(request, args=None):
         second_approve_user_id = args.get("second_approve_user_id", -1)
 
         if project_id > -1 and first_approve_user_id > -1 and second_approve_user_id > -1:
-            new_objs = [AskApprove(project_id=project_id,first_user_id=first_approve_user_id, is_first_passed=False, second_user_id=second_approve_user_id, is_second_passed=False)]
+            new_objs = [AskApprove(project_id=project_id,first_user_id=first_approve_user_id, is_first_passed=Approve_Waiting, second_user_id=second_approve_user_id, is_second_passed=Approve_Waiting)]
             size = addOrRecord(ContractDB.session(), new_objs)
             if size > 0:
                 return buildStandResponse(StateCode_Success, {})
@@ -406,14 +406,49 @@ def getAskApprove(request, args=None):
             need_noitfy = []
             #查找包含user，并且user需要通知的项目
             for obj in objs:
-                if (user_id == obj.first_user_id and not obj.is_first_passed) \
-                        or (user_id == obj.second_user_id and obj.is_first_passed and obj.is_second_passed):
+                if (user_id == obj.first_user_id and not obj.is_first_passed == Approve_Passed) \
+                        or (user_id == obj.second_user_id and obj.is_first_passed == Approve_Passed and not obj.is_second_passed ==Approve_Passed):
                     if obj.project_id not in need_noitfy:
                         pro={}
                         pro["id"] =obj.project_id
                         pro["name"] = projectNameByID(obj.project_id)
                         need_noitfy.append(pro)
             return buildStandResponse(StateCode_Success, {"project_ids":need_noitfy})
+        else:
+            return buildStandResponse(StateCode_InvaildParam)
+
+@doResponse
+def setApproveState(request, args=None):
+    if args is not None:
+        project_id= args.get("project_id", -1)
+        user_id= args.get("user_id", -1)
+        state= args.get("state", -1)
+
+        if user_id > -1 and project_id > -1 and (state ==Approve_Passed or state == Approve_Waiting or state == Approve_Rejected) :
+            objs = records(ContractDB.session(), AskApprove, AskApprove.project_id == project_id)
+
+            if len(objs) >= 0:
+                approve = objs[0]
+                is_changed = False
+                if user_id == approve.first_user_id:
+                    approve.is_first_passed = state
+                    if approve.second_user_id == approve.first_user_id:
+                        approve.is_second_passed = state
+                    is_changed = True
+                elif user_id == approve.second_user_id and approve.is_first_passed == Approve_Passed:
+                    approve.is_second_passed = state
+                    is_changed = True
+                else:
+                    return buildStandResponse(StateCode_FailedToSetProjectApprove)
+
+                if is_changed:
+                    size = addOrRecord(ContractDB.session(), approve)
+                    if size > 0:
+                        return buildStandResponse(StateCode_Success, {})
+                    else:
+                        return buildStandResponse(StateCode_FailedToSetProjectApprove)
+            else:
+                return buildStandResponse(StateCode_ProjectAskApproveNotExist)
         else:
             return buildStandResponse(StateCode_InvaildParam)
 

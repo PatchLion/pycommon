@@ -139,6 +139,15 @@ class ApiTest(unittest.TestCase):
         post(api, {"project_id": 2, "first_approve_user_id": 1, "second_approve_user_id": 3}, self.assertEquals, [200, StateCode_Success])
         post(api, {"project_id": 1, "first_approve_user_id": 1, "second_approve_user_id": 3}, self.assertEquals, [200, StateCode_Success])
 
+        #设置审批状态
+        api = "/api/project/ask_approve/set"
+
+        get(api, {"project_id": 0, "user_id": 3, "state": Approve_Passed}, self.assertEquals, [405])
+        post(api, {"project_id": 0, "user_id": 3, "state": Approve_Rejected}, self.assertEquals, [200, StateCode_Success])
+        post(api, {"project_id": 0, "user_id": 2, "state": Approve_Passed}, self.assertEquals, [200, StateCode_FailedToSetProjectApprove])
+        post(api, {"project_id": 0, "user_id": 3, "state": Approve_Passed}, self.assertEquals, [200, StateCode_Success])
+        post(api, {"project_id": 0, "user_id": 2, "state": Approve_Passed}, self.assertEquals, [200, StateCode_Success])
+
         # 获取审批请求
         api = '/api/project/ask_approve/get'
 

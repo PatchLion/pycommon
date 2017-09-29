@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from sqlalchemy import Column, String, INTEGER, ForeignKey, Float, BOOLEAN
 from Projects.Webs.ContractServer.app.Functions import currentTimeStamp
+from Projects.Webs.ContractServer.app.StateCodes import *
 
 
 class ContractDB(object):
@@ -104,8 +105,8 @@ class AskApprove(TableBase):
     project_id = Column(INTEGER(), nullable=False)  #项目id
     first_user_id = Column(INTEGER(), nullable=False)  #第一审批用户ID
     second_user_id = Column(INTEGER(), nullable=False)  #第二审批用户ID
-    is_first_passed = Column(BOOLEAN(), nullable=False)  #是否第一审批用户通过
-    is_second_passed = Column(BOOLEAN(), nullable=True, default=False)  #是否第二审批用户通过
+    is_first_passed = Column(INTEGER(), nullable=True, default=Approve_Waiting)  #是否第一审批用户通过
+    is_second_passed = Column(INTEGER(), nullable=True, default=Approve_Waiting)  #是否第二审批用户通过
 
 #文件上传记录
 class File(TableBase):

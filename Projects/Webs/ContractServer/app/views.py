@@ -90,3 +90,8 @@ def ask_approve_create():
 @app.route('/api/project/ask_approve/get', methods=["POST"])
 def get_ask_approve():
     return getAskApprove(request, None)
+
+# 项目通过审批
+@app.route('/api/project/ask_approve/set', methods=["POST"])
+def set_approve_state():
+    return setApproveState(request, None)
