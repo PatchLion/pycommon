@@ -389,6 +389,13 @@ def doAskApproveCreate(request, args=None):
         else:
             return buildStandResponse(StateCode_InvaildParam)
 
+def projectNameByID(id):
+    objs = records(ContractDB.session(), Project, Project.id == id)
+    if len(objs) > 0:
+        return objs[0].name
+    else:
+        return ""
+
 @doResponse
 def getAskApprove(request, args=None):
     if args is not None:
@@ -399,13 +406,13 @@ def getAskApprove(request, args=None):
             need_noitfy = []
             #查找包含user，并且user需要通知的项目
             for obj in objs:
-                if user_id == obj.first_user_id and not obj.is_first_passed:
+                if (user_id == obj.first_user_id and not obj.is_first_passed) \
+                        or (user_id == obj.second_user_id and obj.is_first_passed and obj.is_second_passed):
                     if obj.project_id not in need_noitfy:
-                        need_noitfy.append(obj.project_id)
-                if user_id == obj.second_user_id and obj.is_first_passed and obj.is_second_passed:
-                    if obj.project_id not in need_noitfy:
-                        need_noitfy.append(obj.project_id)
-
+                        pro={}
+                        pro["id"] =obj.project_id
+                        pro["name"] = projectNameByID(obj.project_id)
+                        need_noitfy.append(pro)
             return buildStandResponse(StateCode_Success, {"project_ids":need_noitfy})
         else:
             return buildStandResponse(StateCode_InvaildParam)
