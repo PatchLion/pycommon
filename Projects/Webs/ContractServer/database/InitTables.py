@@ -23,7 +23,7 @@ addOrRecord(ContractDB.session(), User(user_name="patchlion", password=stringMD5
 
 #增加项目
 removeRecords(ContractDB.session(), Project)
-addOrRecord(ContractDB.session(), Project(name="成都市政项目"))
+addOrRecord(ContractDB.session(), Project(name="成都市政项目", money = 1000000))
 
 #增加公司
 removeRecords(ContractDB.session(), Company)

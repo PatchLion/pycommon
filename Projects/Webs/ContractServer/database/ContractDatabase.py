@@ -89,10 +89,10 @@ class Project(TableBase):
 
     id = Column(INTEGER(), primary_key=True, autoincrement=True)  #id
     name = Column(String(256), unique=True, nullable=False)  #工程名称
-    money = Column(INTEGER(), nullable=True, default=-1) #项目总投资金额
+    money = Column(INTEGER(), nullable=True, default=0) #项目总投资金额
     rate_of_profit = Column(Float(), nullable=True, default=0.1) #项目利润率
     start_date = Column(INTEGER(), nullable=True, default=currentTimeStamp()) #项目开始日期，时间戳
-    last_date = Column(INTEGER(), nullable=True, default=currentTimeStamp()) #项目到期日期，时间戳
+    last_date = Column(INTEGER(), nullable=True, default=currentTimeStamp() + 10000) #项目到期日期，时间戳
     #first_approve_user_id = Column(INTEGER(), nullable=True, default=-1) #首次审批用户
     #second_approve_user_id = Column(INTEGER(), nullable=True, default=-1) #第二次审批用户
 
