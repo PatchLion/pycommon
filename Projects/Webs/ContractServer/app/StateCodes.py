@@ -74,9 +74,9 @@ def printStateCodes():
 if __name__ == "__main__":
     printStateCodes()
 
-
+'''
 #审批状态
 Approve_Passed = 2 #通过
 Approve_Rejected = 1 #拒绝
 Approve_Waiting = 0 #等待
-
+'''

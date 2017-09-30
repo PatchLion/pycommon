@@ -82,16 +82,16 @@ def upload():
     return doUpload(request, None)
 
 # 增加项目审批请求
-@app.route('/api/project/ask_approve/create', methods=["POST"])
-def ask_approve_create():
-    return doAskApproveCreate(request, None)
+#@app.route('/api/project/ask_approve/create', methods=["POST"])
+#def ask_approve_create():
+    #return doAskApproveCreate(request, None)
 
 # 获取项目审批请求
-@app.route('/api/project/ask_approve/get', methods=["POST"])
-def get_ask_approve():
-    return getAskApprove(request, None)
+#@app.route('/api/project/ask_approve/get', methods=["POST"])
+#def get_ask_approve():
+    #return getAskApprove(request, None)
 
 # 项目通过审批
-@app.route('/api/project/ask_approve/set', methods=["POST"])
-def set_approve_state():
-    return setApproveState(request, None)
+#@app.route('/api/project/ask_approve/set', methods=["POST"])
+#def set_approve_state():
+    #return setApproveState(request, None)

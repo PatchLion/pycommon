@@ -83,6 +83,8 @@ class Company(TableBase):
 
     id = Column(INTEGER(), primary_key=True, autoincrement=True) #id
     name = Column(String(256), unique=True, nullable=False) #公司名称
+    is_outsourced = Column(BOOLEAN(), nullable=True, default=False) #是否是外包公司
+
 
 #项目表
 class Project(TableBase):
@@ -97,6 +99,7 @@ class Project(TableBase):
     #first_approve_user_id = Column(INTEGER(), nullable=True, default=-1) #首次审批用户
     #second_approve_user_id = Column(INTEGER(), nullable=True, default=-1) #第二次审批用户
 
+'''
 #审批申请表
 class AskApprove(TableBase):
     __tablename__ = "AskApprove"
@@ -107,6 +110,7 @@ class AskApprove(TableBase):
     second_user_id = Column(INTEGER(), nullable=False)  #第二审批用户ID
     is_first_passed = Column(INTEGER(), nullable=True, default=Approve_Waiting)  #是否第一审批用户通过
     is_second_passed = Column(INTEGER(), nullable=True, default=Approve_Waiting)  #是否第二审批用户通过
+'''
 
 #文件上传记录
 class File(TableBase):

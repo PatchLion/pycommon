@@ -295,11 +295,12 @@ def doContractCreate(request, args=None):
                 return buildStandResponse(StateCode_ContractExist)
         else:
             return buildStandResponse(StateCode_InvaildParam)
-
+        '''
 #获取项目审批信息
 def approveInfoByProjectID(id):
     objs = records(ContractDB.session(), AskApprove, AskApprove.project_id==id)
     return objs
+'''
 
 def projectFromRecord(record):
     returndata = {}
@@ -309,6 +310,7 @@ def projectFromRecord(record):
     returndata["start_date"] = record.start_date
     returndata["last_date"] = record.last_date
     returndata["rate_of_profit"] = record.rate_of_profit
+    '''
     apprs = approveInfoByProjectID(record.id)
     if len(apprs) >  0:
         returndata["first_approve_user_id"] = apprs[0].first_user_id
@@ -324,6 +326,7 @@ def projectFromRecord(record):
         returndata["second_approve_user_id"] = -1
         returndata["second_approve_user_nickname"] = ""
         returndata["is_second_approve_user_passed"] = False
+    '''
     return returndata
 
 @doResponse
@@ -371,7 +374,7 @@ def doCreateRole(request, args=None):
         else:
             return buildStandResponse(StateCode_InvaildParam)\
 
-
+'''
 @doResponse
 def doAskApproveCreate(request, args=None):
     if args is not None:
@@ -388,6 +391,7 @@ def doAskApproveCreate(request, args=None):
                 return buildStandResponse(StateCode_FailedToCreateProjectAskApprove)
         else:
             return buildStandResponse(StateCode_InvaildParam)
+'''
 
 def projectNameByID(id):
     objs = records(ContractDB.session(), Project, Project.id == id)
@@ -396,6 +400,7 @@ def projectNameByID(id):
     else:
         return ""
 
+'''
 @doResponse
 def getAskApprove(request, args=None):
     if args is not None:
@@ -416,7 +421,9 @@ def getAskApprove(request, args=None):
             return buildStandResponse(StateCode_Success, {"project_ids":need_noitfy})
         else:
             return buildStandResponse(StateCode_InvaildParam)
+'''
 
+'''
 @doResponse
 def setApproveState(request, args=None):
     if args is not None:
@@ -451,6 +458,7 @@ def setApproveState(request, args=None):
                 return buildStandResponse(StateCode_ProjectAskApproveNotExist)
         else:
             return buildStandResponse(StateCode_InvaildParam)
+'''
 
 @doResponse
 def getCompanies(request, args=None):
@@ -459,10 +467,7 @@ def getCompanies(request, args=None):
         res_json = {}
         res_json["companies"] = []
         for obj in objects:
-            temp = {}
-            temp["id"] = obj.id
-            temp["name"] = obj.name
-            res_json["companies"].append(temp)
+            temp = companyFromRecord(obj)
         return buildStandResponse(StateCode_Success, res_json)
 
 @doResponse
@@ -574,20 +579,26 @@ def doUpload(request, args=None):
         else:
             return buildStandResponse(StateCode_InvaildParam)
 
+def companyFromRecord(record):
+    res = {}
+    res["id"] = record.id
+    res["name"] = record.name
+    res["is_outsourced"] = record.is_outsourced
+    return res
+
 @doResponse
 def doCompanyCreate(request, args=None):
     if args is not None:
         name = args.get("name", "")
+        is_outsourced = args.get("is_outsourced", False)
         if checkDataVaild(name):
             record = records(ContractDB.session(), Company, Company.name == name)
             if len(record) == 0:
-                obj = Company(name=name)
-                addOrRecord(ContractDB.session(), obj)
-                record = records(ContractDB.session(), Company, Company.name == name)
-                if len(record) > 0:
-                    res = {}
-                    res["id"] = record[0].id
-                    res["name"] = record[0].name
+                com = Company(name=name,is_outsourced=is_outsourced)
+                addOrRecord(ContractDB.session(), com)
+                objs = records(ContractDB.session(), Company, Company.name == name)
+                if len(objs) > 0:
+                    res = companyFromRecord(objs[0])
                     return buildStandResponse(StateCode_Success, res)
                 else:
                     return buildStandResponse(StateCode_FailedToCreateCompany)

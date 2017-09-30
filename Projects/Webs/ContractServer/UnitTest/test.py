@@ -129,6 +129,7 @@ class ApiTest(unittest.TestCase):
         get(api, {}, self.assertEquals, [405])
         post(api, {}, self.assertEquals, [200, StateCode_Success])
 
+        '''
         # 创建审批请求
         api = '/api/project/ask_approve/create'
 
@@ -153,4 +154,4 @@ class ApiTest(unittest.TestCase):
 
         get(api, {"user_id": 1}, self.assertEquals, [405])
         post(api, {"user_id": 1}, self.assertEquals, [200, StateCode_Success])
-
+        '''
