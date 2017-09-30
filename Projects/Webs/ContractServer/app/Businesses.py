@@ -468,6 +468,7 @@ def getCompanies(request, args=None):
         res_json["companies"] = []
         for obj in objects:
             temp = companyFromRecord(obj)
+            res_json["companies"].append(temp)
         return buildStandResponse(StateCode_Success, res_json)
 
 @doResponse
