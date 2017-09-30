@@ -485,55 +485,58 @@ def getContractList(request, args=None):
         company_id = args.get("company_id", -1)
         contract_id = args.get("contract_id", -1)
         parent_contract_id = args.get("parent_contract_id", -1)
-        if project_id > -1 or company_id > -1 or contract_id > -1 or parent_contract_id > -1:
-            conds = []
-            if project_id > -1:
-                conds.append(Contract.project_id == project_id)
+        #if project_id > -1 or company_id > -1 or contract_id > -1 or parent_contract_id > -1:
+        conds = []
+        if project_id > -1:
+            conds.append(Contract.project_id == project_id)
 
-            if company_id > -1:
-                conds.append(Contract.company_id == company_id)
+        if company_id > -1:
+            conds.append(Contract.company_id == company_id)
 
-            if contract_id > -1:
-                conds.append(Contract.id == contract_id)
+        if contract_id > -1:
+            conds.append(Contract.id == contract_id)
 
-            if parent_contract_id > -1:
-                conds.append(Contract.parent_contract_id == parent_contract_id)
+        if parent_contract_id > -1:
+            conds.append(Contract.parent_contract_id == parent_contract_id)
 
+        if len(conds) == 0:
+            objs = records(ContractDB.session(), Contract)
+        else:
             objs = records(ContractDB.session(), Contract, and_(*conds))
 
-            res_json = {}
-            res_json["contracts"] = []
-            for cont in objs:
-                res = {}
-                res["id"] = cont.id
-                res["project_id"] = cont.project_id
-                res["name"] = cont.name
-                res["company_id"] = cont.company_id
-                res["retention_money"] = cont.retention_money
-                res["retention_money_date"] = cont.retention_money_date
-                res["parent_contract_id"] = cont.parent_contract_id
-                res["money"] = cont.money
-                res["pay_money"] = cont.pay_money
-                res["progress"] = cont.progress
-                res["second_party_name"] = cont.second_party_name
-                res["place_of_performance"] = cont.place_of_performance
-                res["date_of_performance"] = cont.date_of_performance
-                res["type_of_performance"] = cont.type_of_performance
-                res["note"] = cont.note
-                files = []
-                file_records = records(ContractDB.session(), File, File.contract_id==cont.id)
-                for f in file_records:
-                    temp = {}
-                    temp["filename"] = f.name
-                    temp["classify"] = f.classify
-                    temp["contract_id"] = f.contract_id
-                    temp["note"] = f.note
-                    files.append(temp)
-                res["files"] = files
-                res_json["contracts"].append(res)
-            return buildStandResponse(StateCode_Success, res_json)
-        else:
-            return buildStandResponse(StateCode_InvaildParam)
+        res_json = {}
+        res_json["contracts"] = []
+        for cont in objs:
+            res = {}
+            res["id"] = cont.id
+            res["project_id"] = cont.project_id
+            res["name"] = cont.name
+            res["company_id"] = cont.company_id
+            res["retention_money"] = cont.retention_money
+            res["retention_money_date"] = cont.retention_money_date
+            res["parent_contract_id"] = cont.parent_contract_id
+            res["money"] = cont.money
+            res["pay_money"] = cont.pay_money
+            res["progress"] = cont.progress
+            res["second_party_name"] = cont.second_party_name
+            res["place_of_performance"] = cont.place_of_performance
+            res["date_of_performance"] = cont.date_of_performance
+            res["type_of_performance"] = cont.type_of_performance
+            res["note"] = cont.note
+            files = []
+            file_records = records(ContractDB.session(), File, File.contract_id==cont.id)
+            for f in file_records:
+                temp = {}
+                temp["filename"] = f.name
+                temp["classify"] = f.classify
+                temp["contract_id"] = f.contract_id
+                temp["note"] = f.note
+                files.append(temp)
+            res["files"] = files
+            res_json["contracts"].append(res)
+        return buildStandResponse(StateCode_Success, res_json)
+    else:
+        return buildStandResponse(StateCode_InvaildParam)
 
 @doResponse
 def doUpload(request, args=None):
