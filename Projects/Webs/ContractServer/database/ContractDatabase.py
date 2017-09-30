@@ -136,7 +136,7 @@ class Contract(TableBase):
     place_of_performance = Column(String(256), nullable=True) #履行地点
     date_of_performance = Column(String(256), nullable=True) #履行期限
     type_of_performance = Column(String(256), nullable=True) #履行方式
-    note = Column(String(256), nullable=True, ) #备注
+    note = Column(String(256), nullable=True) #备注
 
 #合同进度记录表
 class ContractHistory(TableBase):
