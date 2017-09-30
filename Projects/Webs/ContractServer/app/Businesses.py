@@ -406,8 +406,8 @@ def getAskApprove(request, args=None):
             need_noitfy = []
             #查找包含user，并且user需要通知的项目
             for obj in objs:
-                if (user_id == obj.first_user_id and not obj.is_first_passed == Approve_Passed) \
-                        or (user_id == obj.second_user_id and obj.is_first_passed == Approve_Passed and not obj.is_second_passed ==Approve_Passed):
+                if (user_id == obj.first_user_id and obj.is_first_passed == Approve_Waiting) \
+                        or (user_id == obj.second_user_id and obj.is_first_passed == Approve_Passed and obj.is_second_passed ==Approve_Waiting):
                     if obj.project_id not in need_noitfy:
                         pro={}
                         pro["id"] =obj.project_id
