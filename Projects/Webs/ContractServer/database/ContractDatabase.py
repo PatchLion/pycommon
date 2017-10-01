@@ -48,7 +48,7 @@ class User(TableBase):
     id = Column(INTEGER(), primary_key=True, autoincrement=True) #id
     user_name = Column(String(256), unique=True, nullable=False) #用户名
     password = Column(String(256), nullable=False) #密码
-    nick_name = Column(String(256), nullable=True) #昵称
+    nick_name = Column(String(256), nullable=True, default="未命名") #昵称
     company_id = Column(INTEGER(), nullable=True, default=-1) #公司id
     role_id = Column(INTEGER(), nullable=True, default=-1) #角色id
 
@@ -85,17 +85,50 @@ class Company(TableBase):
     name = Column(String(256), unique=True, nullable=False) #公司名称
     is_outsourced = Column(BOOLEAN(), nullable=True, default=False) #是否是外包公司
 
+#行业表
+class Trade(TableBase):
+    __tablename__ = "Trade"
+
+    id = Column(INTEGER(), primary_key=True, autoincrement=True)  # id
+    name = Column(String(256), unique=True, nullable=False)  # 行业名称
+
+#建设性质表
+class BuildType(TableBase):
+    __tablename__ = "BuildType"
+
+    id = Column(INTEGER(), primary_key=True, autoincrement=True)  # id
+    name = Column(String(256), unique=True, nullable=False)  # 建设性质名称
+
+#资金来源种类
+class MoneyType(TableBase):
+    __tablename__ = "MoneyType"
+
+    id = Column(INTEGER(), primary_key=True, autoincrement=True)  # id
+    name = Column(String(256), unique=True, nullable=False)  # 资金来源种类名称
+
+#项目资金及来源表
+class ProjectMoney(TableBase):
+    __tablename__ = "ProjectMoney"
+
+    id = Column(INTEGER(), primary_key=True, autoincrement=True)  # id
+    project_id = Column(INTEGER(), nullable=False)  #项目ID
+    moneytype_id = Column(INTEGER(), nullable=False)  #资金来源
+    money = Column(INTEGER(), nullable=False)  #资金
 
 #项目表
 class Project(TableBase):
     __tablename__ = "Project"
 
     id = Column(INTEGER(), primary_key=True, autoincrement=True)  #id
-    name = Column(String(256), unique=True, nullable=False)  #工程名称
-    money = Column(INTEGER(), nullable=True, default=0) #项目总投资金额
+    name = Column(String(256), unique=True, nullable=False)  #项目名称
+    addr = Column(String(512), nullable=False)#建设地点
+    trade_id = Column(INTEGER(), nullable=False)  #所属行业
+    buildtype_id = Column(String(256), nullable=False)#建设性质
+    content = Column(String(1024), nullable=False)#项目描述
+    #money = Column(INTEGER(), nullable=True, default=0) #项目总投资金额
     rate_of_profit = Column(Float(), nullable=True, default=0.1) #项目利润率
-    start_date = Column(INTEGER(), nullable=True, default=currentTimeStamp()) #项目开始日期，时间戳
-    last_date = Column(INTEGER(), nullable=True, default=currentTimeStamp() + 10000) #项目到期日期，时间戳
+    start_date = Column(INTEGER(), nullable=False, default=currentTimeStamp()) #项目开始日期，时间戳
+    last_date = Column(INTEGER(), nullable=False, default=currentTimeStamp() + 10000) #项目到期日期，时间戳
     #first_approve_user_id = Column(INTEGER(), nullable=True, default=-1) #首次审批用户
     #second_approve_user_id = Column(INTEGER(), nullable=True, default=-1) #第二次审批用户
 

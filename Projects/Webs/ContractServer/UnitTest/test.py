@@ -5,7 +5,7 @@ from Projects.Webs.ContractServer.app.StateCodes import *
 from MySqlAlchemy.DBOperator import *
 from Projects.Webs.ContractServer.settings import *
 import shutil, os
-
+import copy
 
 #get("/api/companies/list")
 
@@ -60,9 +60,24 @@ class ApiTest(unittest.TestCase):
         #创建项目
         api = '/api/project/create'
         removeRecords(ContractDB.session(), Project)
-        get(api, {"name": "三峡大坝", "money": 100000000, "last_date": 10021301203}, self.assertEquals,[405])
-        post(api, {"name": "三峡大坝", "money": 100000000, "start_date": 100000000, "last_date": 10021301203}, self.assertEquals, [200, StateCode_Success])
-        post(api, {"name": "三峡大坝", "money": 100000000, "start_date": 100000000, "last_date": 10021301203}, self.assertEquals, [200, StateCode_ProjectExist])
+        project1 = {"name": "三峡大坝",
+                    "money": 100000000,
+                    "start_date": 100000000,
+                    "addr": "手动阀房屋",
+                    "content": "舒服舒服山东师范",
+                    "moneytypes":[{"type":1, "money": 100000}],
+                    "last_date": 10021301203,
+                    "buildtype_id": 1,
+                    "trade_id": 1}
+
+        get(api, project1, self.assertEquals,[405])
+        post(api, project1, self.assertEquals, [200, StateCode_Success])
+        post(api, project1, self.assertEquals, [200, StateCode_ProjectExist])
+
+        project2 = copy.deepcopy(project1)
+        project2["name"] = "高速公路"
+
+        post(api, project2, self.assertEquals, [200, StateCode_Success])
 
         #获取项目列表
         api = '/api/project/list'
