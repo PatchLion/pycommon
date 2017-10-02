@@ -450,15 +450,23 @@ def projectFromRecord(record):
 @doResponse
 def getProjectList(request, args=None):
     if args is not None:
-        id = args.get("id", -1)
-        name = args.get("name", "")
+        args_checker = ArgsChecker(args)
+        args_checker.addNumerChecker(name="id", is_req=False, range=(0, None))
+        args_checker.addStringChecker(name="name", is_req=False)
+        successed, message = args_checker.check()
+
+        if not successed:
+            return buildStandResponse(StateCode_InvaildParam, message)
+
+        isIDExist = ("id" in args.keys())
+        isNameExist = ("name" in args.keys())
         cond = None
-        if id > -1 and checkDataVaild(name):
-            cond = and_(Project.id == id, Project.name == name)
-        elif id > -1:
-            cond = (Project.id == id)
-        elif checkDataVaild(name):
-            cond = (Project.name == name)
+        if isIDExist and isNameExist:
+            cond = and_(Project.id == args["id"], Project.name == args["name"])
+        elif isIDExist:
+            cond = (Project.id == args["id"])
+        elif isNameExist:
+            cond = (Project.name == args["name"])
         if cond is None:
             projects = records(ContractDB.session(), Project)
         else:
@@ -474,23 +482,27 @@ def getProjectList(request, args=None):
 @doResponse
 def doCreateRole(request, args=None):
     if args is not None:
-        role_name = args.get("name", "")
-        if checkDataVaild(role_name):
-            objs = records(ContractDB.session(), Role, Role.name == role_name)
-            if len(objs) == 0:
-                id = createUuid()
-                size = addOrRecord(ContractDB.session(), Role(name=role_name))
-                if size > 0:
-                    res_json = {}
-                    res_json["id"] = id
-                    res_json["name"] = role_name
-                    return buildStandResponse(StateCode_Success, res_json)
-                else:
-                    return buildStandResponse(StateCode_FailedToCreateRole)
+        args_checker = ArgsChecker(args)
+        args_checker.addStringChecker(name="name", is_req=True)
+        successed, message = args_checker.check()
+
+        if not successed:
+            return buildStandResponse(StateCode_InvaildParam, message)
+
+        role_name = args["name"]
+        objs = records(ContractDB.session(), Role, Role.name == role_name)
+        if len(objs) == 0:
+            id = createUuid()
+            size = addOrRecord(ContractDB.session(), Role(name=role_name))
+            if size > 0:
+                res_json = {}
+                res_json["id"] = id
+                res_json["name"] = role_name
+                return buildStandResponse(StateCode_Success, res_json)
             else:
-                return buildStandResponse(StateCode_RoleExist)
+                return buildStandResponse(StateCode_FailedToCreateRole)
         else:
-            return buildStandResponse(StateCode_InvaildParam)\
+            return buildStandResponse(StateCode_RoleExist)
 
 '''
 @doResponse
@@ -605,23 +617,28 @@ def getRoleList(request, args=None):
 @doResponse
 def getContractList(request, args=None):
     if args is not None:
-        project_id = args.get("project_id", -1)
-        company_id = args.get("company_id", -1)
-        contract_id = args.get("contract_id", -1)
-        parent_contract_id = args.get("parent_contract_id", -1)
-        #if project_id > -1 or company_id > -1 or contract_id > -1 or parent_contract_id > -1:
+        args_checker = ArgsChecker(args)
+        args_checker.addNumerChecker(name="project_id", is_req=False, range=(0, None))
+        args_checker.addNumerChecker(name="company_id", is_req=False, range=(0, None))
+        args_checker.addNumerChecker(name="contract_id", is_req=False, range=(0, None))
+        args_checker.addNumerChecker(name="parent_contract_id", is_req=False, range=(0, None))
+        successed, message = args_checker.check()
+
+        if not successed:
+            return buildStandResponse(StateCode_InvaildParam, message)
+
         conds = []
-        if project_id > -1:
-            conds.append(Contract.project_id == project_id)
+        if "project_id" in args.keys():
+            conds.append(Contract.project_id == args["project_id"])
 
-        if company_id > -1:
-            conds.append(Contract.company_id == company_id)
+        if "company_id" in args.keys():
+            conds.append(Contract.company_id == args["company_id"])
 
-        if contract_id > -1:
-            conds.append(Contract.id == contract_id)
+        if "contract_id" in args.keys():
+            conds.append(Contract.id == args["contract_id"])
 
-        if parent_contract_id > -1:
-            conds.append(Contract.parent_contract_id == parent_contract_id)
+        if "parent_contract_id" in args.keys():
+            conds.append(Contract.parent_contract_id == args["parent_contract_id"])
 
         if len(conds) == 0:
             objs = records(ContractDB.session(), Contract)
@@ -659,44 +676,56 @@ def getContractList(request, args=None):
             res["files"] = files
             res_json["contracts"].append(res)
         return buildStandResponse(StateCode_Success, res_json)
-    else:
-        return buildStandResponse(StateCode_InvaildParam)
 
 @doResponse
 def doUpload(request, args=None):
     if args is not None:
-        filename = args.get("filename", "")
-        filedata = args.get("filedata", "")
-        classify = args.get("classify", "")
-        contract_id = args.get("contract_id", -1)
-        note = args.get("note", "")
-        if checkDataVaild(filename) and checkDataVaild(filedata) and contract_id > -1 and checkDataVaild(classify):
-            dir = os.path.join(FILE_RESTORE_ROOT_DIR,str(contract_id), classify)
-            if not os.path.exists(dir):
-                os.makedirs(dir)
-            fullpath = os.path.join(dir, filename)
+        args_checker = ArgsChecker(args)
+        args_checker.addStringChecker(name="filename", is_req=True)
+        args_checker.addStringChecker(name="filedata", is_req=True)
+        args_checker.addStringChecker(name="classify", is_req=True)
+        args_checker.addNumerChecker(name="contract_id", is_req=True, range=(0, None))
+        args_checker.addStringChecker(name="note", is_req=False)
+        successed, message = args_checker.check()
 
-            if os.path.exists(fullpath):
-                return buildStandResponse(StateCode_FileExist)
+        if not successed:
+            return buildStandResponse(StateCode_InvaildParam, message)
 
-            try:
-                with open(fullpath, "wb", ) as f:
-                    print("Write file to:", fullpath)
-                    filesize = f.write(base64.b64decode(filedata))
-                    if filesize > 0:
-                        size = addOrRecord(ContractDB.session(), File(contract_id=contract_id, classify=classify, name = filename, note=note))
-                        if size > 0:
-                            return buildStandResponse(StateCode_Success, {})
-                        else:
-                            os.remove(fullpath)
-                            return buildStandResponse(StateCode_FailedToCreateFileRecord)
+        filename = args["filename"]
+        filedata = args["filedata"]
+        classify = args["classify"]
+        contract_id = args["contract_id"]
+
+        dir = os.path.join(FILE_RESTORE_ROOT_DIR,str(contract_id), classify)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+        fullpath = os.path.join(dir, filename)
+
+        if os.path.exists(fullpath):
+            return buildStandResponse(StateCode_FileExist)
+
+        try:
+            with open(fullpath, "wb", ) as f:
+                print("Write file to:", fullpath)
+                filesize = f.write(base64.b64decode(filedata))
+                if filesize > 0:
+                    params = {}
+                    params["contract_id"] = contract_id
+                    params["classify"] = classify
+                    params["name"] = filename
+                    if "note" in args.keys():
+                        params["note"] = args["note"]
+                    size = addOrRecord(ContractDB.session(), File(**params))
+                    if size > 0:
+                        return buildStandResponse(StateCode_Success, {})
                     else:
-                        return buildStandResponse(StateCode_FailedToCreateFile)
-            except Exception as e:
-                return buildStandResponse(StateCode_FailedToCreateFile)
+                        os.remove(fullpath)
+                        return buildStandResponse(StateCode_FailedToCreateFileRecord)
+                else:
+                    return buildStandResponse(StateCode_FailedToCreateFile)
+        except Exception as e:
+            return buildStandResponse(StateCode_FailedToCreateFile)
 
-        else:
-            return buildStandResponse(StateCode_InvaildParam)
 
 def companyFromRecord(record):
     res = {}
@@ -708,12 +737,22 @@ def companyFromRecord(record):
 @doResponse
 def doCompanyCreate(request, args=None):
     if args is not None:
-        name = args.get("name", "")
-        is_outsourced = args.get("is_outsourced", False)
+        args_checker = ArgsChecker(args)
+        args_checker.addStringChecker(name="name", is_req=True)
+        successed, message = args_checker.check()
+
+        if not successed:
+            return buildStandResponse(StateCode_InvaildParam, message)
+
+        name = args["name"]
         if checkDataVaild(name):
             record = records(ContractDB.session(), Company, Company.name == name)
             if len(record) == 0:
-                com = Company(name=name,is_outsourced=is_outsourced)
+                params = {}
+                params["name"] = name
+                if "is_outsourced" in args.keys():
+                    params["is_outsourced"] = args["is_outsourced"]
+                com = Company(**params)
                 addOrRecord(ContractDB.session(), com)
                 objs = records(ContractDB.session(), Company, Company.name == name)
                 if len(objs) > 0:
