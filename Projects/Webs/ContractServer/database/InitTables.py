@@ -34,6 +34,7 @@ addOrRecord(ContractDB.session(), Company(name="外包一公司", is_outsourced=
 
 #增加合同
 removeRecords(ContractDB.session(), Contract)
+'''
 addOrRecord(ContractDB.session(), Contract(name="合同1", project_id=1, company_id=1, money=100000, second_party_name="啦啦啦啦啊"))
 addOrRecord(ContractDB.session(), Contract(name="合同2", project_id=1, company_id=1, money=100000, parent_contract_id=1, second_party_name="啦啦啦啦啊"))
 addOrRecord(ContractDB.session(), Contract(name="合同3", project_id=1, company_id=1, money=100000, parent_contract_id=2, second_party_name="啦啦啦啦啊"))
@@ -41,6 +42,7 @@ addOrRecord(ContractDB.session(), Contract(name="合同4", project_id=1, company
 addOrRecord(ContractDB.session(), Contract(name="合同5", project_id=1, company_id=1, money=100000, parent_contract_id=4, second_party_name="啦啦啦啦啊"))
 addOrRecord(ContractDB.session(), Contract(name="合同6", project_id=1, company_id=1, money=100000, parent_contract_id=5, second_party_name="啦啦啦啦啊"))
 addOrRecord(ContractDB.session(), Contract(name="合同7", project_id=1, company_id=3, money=100000, parent_contract_id=5, second_party_name="啦啦啦啦啊"))
+'''
 
 #增加行业
 removeRecords(ContractDB.session(), Trade)

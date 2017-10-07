@@ -26,6 +26,8 @@ StateCode_FailedToCreateFile = 1022
 StateCode_FailedToCreateFileRecord = 1023
 StateCode_ProjectAskApproveNotExist = 1024
 StateCode_FailedToSetProjectApprove = 1025
+StateCode_FailedToCreateContractBill = 1026
+StateCode_ContractBillExist = 1027
 
 StateCodeDescriptions = {
 StateCode_Success : "成功",
@@ -54,7 +56,9 @@ StateCode_FailedToModifyUserInfo: "修改用户属性失败",
 StateCode_FailedToCreateFile: "创建文件失败",
 StateCode_FailedToCreateFileRecord: "创建文件记录失败",
 StateCode_ProjectAskApproveNotExist: "项目审批请求不存在",
-StateCode_FailedToSetProjectApprove: "设置项目审批状态失败"
+StateCode_FailedToSetProjectApprove: "设置项目审批状态失败",
+StateCode_FailedToCreateContractBill: "创建合同票据失败",
+StateCode_ContractBillExist: "合同票据已存在"
 }
 
 

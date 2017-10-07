@@ -113,7 +113,7 @@ class ProjectMoney(TableBase):
     id = Column(INTEGER(), primary_key=True, autoincrement=True)  # id
     project_id = Column(INTEGER(), nullable=False)  #项目ID
     moneytype_id = Column(INTEGER(), nullable=False)  #资金来源
-    money = Column(INTEGER(), nullable=False)  #资金
+    money = Column(INTEGER(), nullable=False)  #资金（元）
 
 #项目表
 class Project(TableBase):
@@ -125,12 +125,10 @@ class Project(TableBase):
     trade_id = Column(INTEGER(), nullable=False)  #所属行业
     buildtype_id = Column(String(256), nullable=False)#建设性质
     content = Column(String(1024), nullable=False)#项目描述
-    #money = Column(INTEGER(), nullable=True, default=0) #项目总投资金额
     rate_of_profit = Column(Float(), nullable=True, default=0.1) #项目利润率
     start_date = Column(INTEGER(), nullable=False, default=currentTimeStamp()) #项目开始日期，时间戳
     last_date = Column(INTEGER(), nullable=False, default=currentTimeStamp() + 10000) #项目到期日期，时间戳
-    #first_approve_user_id = Column(INTEGER(), nullable=True, default=-1) #首次审批用户
-    #second_approve_user_id = Column(INTEGER(), nullable=True, default=-1) #第二次审批用户
+
 
 '''
 #审批申请表
@@ -145,15 +143,6 @@ class AskApprove(TableBase):
     is_second_passed = Column(INTEGER(), nullable=True, default=Approve_Waiting)  #是否第二审批用户通过
 '''
 
-#文件上传记录
-class File(TableBase):
-    __tablename__ = "File"
-
-    id = Column(INTEGER(),primary_key=True, autoincrement=True)  #id
-    contract_id = Column(INTEGER(),nullable=False)  #合同id
-    classify = Column(String(256),nullable=False) #分类
-    name = Column(String(256),nullable=False) #名称
-    note = Column(String(256), nullable=True) #备注
 
 #合同表
 class Contract(TableBase):
@@ -162,20 +151,29 @@ class Contract(TableBase):
     id = Column(INTEGER(),primary_key=True, autoincrement=True)  #id
     name = Column(String(256), unique=True, nullable=False) #合同名称
     project_id = Column(INTEGER(), nullable=False) #项目id
-    company_id = Column(INTEGER(), nullable=False) #公司id
-    retention_money = Column(INTEGER(), nullable=True, default=-1) #质保金额
+    company_id = Column(INTEGER(), nullable=False) #公司id(施工单位)
+    retention_money = Column(INTEGER(), nullable=True, default=-1) #质保金额（元）
     retention_money_date = Column(INTEGER(), nullable=True, default=-1) #质保金期限, 时间戳
     parent_contract_id = Column(INTEGER(),nullable=True, default=-1) #父合同ID -1为没有父合同
-    money = Column(INTEGER(), nullable=False, default=0) #资金
-    progress = Column(INTEGER(), default=0)  # 进度 0 - 100
-    pay_money = Column(INTEGER(), nullable=False,default=0) #已支付款项
-    second_party_name = Column(String(256), nullable=False) #乙方名称
+    money = Column(INTEGER(), nullable=False, default=0) #资金（元）
     place_of_performance = Column(String(256), nullable=True) #履行地点
     date_of_performance = Column(String(256), nullable=True) #履行期限
     type_of_performance = Column(String(256), nullable=True) #履行方式
     note = Column(String(256), nullable=True) #备注
-
+    code = Column(String(256), unique=True, nullable=False) #合同编码
+    tag_object_name = Column(String(256), nullable=True) #标的物名称
+    content = Column(String(256), nullable=False) #合同内容
+    scope = Column(String(256), nullable=False) #合同范围
+    retention_money_percent = Column(INTEGER(), nullable=True, default=0.1) #质保金比例
+    responsible_person = Column(String(256), nullable=True) #经办人名称
+    responsible_person_contact = Column(String(256), nullable=True) #经办人联系方式
+    pay_condtion = Column(String(1000), nullable=True) #合同付款条件 多条记录用分割符分割
+    sign_date = Column(INTEGER(), nullable=False) #签订时间, 时间戳
+    start_date = Column(INTEGER(), nullable=False) #生效时间, 时间戳
+    progress = Column(INTEGER(), nullable=True,default=0) #进度 0 - 100
+'''
 #合同进度记录表
+
 class ContractHistory(TableBase):
     __tablename__ = "ContractsHistory"
 
@@ -186,3 +184,32 @@ class ContractHistory(TableBase):
     datetime = Column(INTEGER(), nullable=False) #创建时间
     note = Column(String(256), nullable=True, ) #备注
 
+
+
+#文件上传记录
+class File(TableBase):
+    __tablename__ = "File"
+
+    id = Column(INTEGER(),primary_key=True, autoincrement=True)  #id
+    contract_id = Column(INTEGER(),nullable=False)  #合同id
+    classify = Column(String(256),nullable=False) #分类
+    name = Column(String(256),nullable=False) #名称
+    note = Column(String(256), nullable=True) #备注
+'''
+
+#合同票据信息
+class ContractBill(TableBase):
+    __tablename__ = "ContractBil"
+
+    id = Column(INTEGER(), primary_key=True, autoincrement=True)  # id
+    contract_id = Column(INTEGER(), nullable=False) # 合同编号
+    bill_number = Column(String(256), nullable=False, unique=True)  # 凭证号
+    datetime = Column(INTEGER(), nullable=False) # 时间
+    abstract = Column(String(256), nullable=True) # 摘要
+    payment_amount = Column(INTEGER(), nullable=False) # 付款金额（元）
+    not_settlement_amount = Column(INTEGER(), nullable=True) # 未结算金额（元）
+    bill_amount = Column(INTEGER(), nullable=True, default=0) # 提供票据金额（元）
+    receipt_amount = Column(INTEGER(), nullable=True, default=0) # 提供发票金额（元）
+    payment_bank_and_type = Column(String(256), nullable=False) # 付款银行及方式
+    bill_file_path = Column(String(512), nullable=True) # 票据文件路径
+    note = Column(String(256), nullable=True) # 备注

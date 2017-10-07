@@ -1,76 +1,127 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 #解析并校验参数
 class ArgsChecker(object):
     def __init__(self, args):
-        self.args = args
-        self.checklist = [] #校验规则，格式 (参数名称，校验函数，是否必须, 是否可为空，取值范围)
-        self.params = {}
+        self._args = args
+        self._results = []
+        self._output_params = {}
 
-    def clearCheckList(self):
-        self.checklist.clear()
+    def clear(self):
+        self._results.clear()
+        self._output_params.clear()
 
-    def clearParams(self):
-        self.params.clear()
+    # 注意: 只存储字符串和数字型的参数
+    def outputParams(self):
+        print("ArgsChecker output_params = ", self._output_params)
+        return self._output_params
 
-    def addStringChecker(self, name, is_req = False, isnullable = False):
-        self.checklist.append((name, self.CheckString, is_req, isnullable, None))
+    def checkResult(self):
+        k,v = len(self._results) == 0, self._results
+        print("args =", self._args, "\nCheck result =", k, v)
+        return k,v
+
+    def addBooleanChecker(self, name, is_req = False):
+        exist_message = self.checkExist(key=name)
+        if exist_message is not None:
+            if is_req:
+                self._results.append(ArgsChecker.buildErrorMessage(name, exist_message))
+            return None
+        else:
+            if not isinstance(self._args[name], bool):
+                self._results.append(ArgsChecker.buildErrorMessage(name, "参数不是Bool格式"))
+                return None
+            else:
+                self._output_params[name] = self._args[name]
+                return self._args[name]
+
+    def addStringChecker(self, name, is_req = False):
+        exist_message = self.checkExist(key=name)
+        if exist_message is not None:
+            if is_req:
+                self._results.append(ArgsChecker.buildErrorMessage(name, exist_message))
+            return None
+        else:
+            check_message = self.CheckString(arg=self._args[name])
+            if check_message is not None:
+                self._results.append(ArgsChecker.buildErrorMessage(name, check_message))
+                return None
+            else:
+                self._output_params[name] = self._args[name]
+                return self._args[name]
+
 
     def addNumerChecker(self, name, is_req = False, range = (None, None)):
-        self.checklist.append((name, self.CheckNumber, is_req, None, range))
+        exist_message = self.checkExist(key=name)
+        if exist_message is not None:
+            if is_req:
+                self._results.append(ArgsChecker.buildErrorMessage(name, exist_message))
+            return None
+        else:
+            check_message = self.CheckNumber(arg=self._args[name], range=range)
+            if check_message is not None:
+                self._results.append(ArgsChecker.buildErrorMessage(name, check_message))
+                return None
+            else:
+                self._output_params[name] = self._args[name]
+                return self._args[name]
+
 
     def addDictChecker(self, name, is_req=False, keys = None):
-        self.checklist.append((name, self.CheckDict, is_req, None, keys))
+        exist_message = self.checkExist(key=name)
+        if exist_message is not None:
+            if is_req:
+                self._results.append(ArgsChecker.buildErrorMessage(name, exist_message))
+            return None
+        else:
+            check_message = self.CheckDict(arg=self._args[name], keys=keys)
+            if check_message is not None:
+                self._results.append(ArgsChecker.buildErrorMessage(name, check_message))
+                return None
+            else:
+                #print("1111", name, self.args[name])
+                return self._args[name]
+
 
     def addArrayChecker(self, name, is_req=False, value_range = None):
-        self.checklist.append((name, self.CheckArray, is_req, None, value_range))
-
-    def check(self):
-        report = {}
-        for check in self.checklist:
-            arg_name = check[0]
-            check_func = check[1]
-            is_req = check[2]
-            isnullable = check[3]
-            range = check[4]
-
-            temp = {}
-
-            if arg_name not in self.args.keys():
-                if is_req:
-                    temp["param"] = arg_name
-                    temp["message"] = "没有找到参数"
+        exist_message = self.checkExist(key=name)
+        if exist_message is not None:
+            if is_req:
+                self._results.append(ArgsChecker.buildErrorMessage(name, exist_message))
+            return None
+        else:
+            check_message = self.CheckArray(arg=self._args[name], value_range=value_range)
+            if check_message is not None:
+                self._results.append(ArgsChecker.buildErrorMessage(name, check_message))
+                return None
             else:
-                if self.args[arg_name] is None:
-                    temp["param"] = arg_name
-                    temp["message"] = "参数为None"
-                else:
-                    ck = check_func(self.args[arg_name], isnullable, range)
-                    if ck is not None:
-                        temp["param"] = arg_name
-                        temp["error"] = ck
-            if len(temp.keys()) > 0:
-                if "errors" not in report.keys():
-                    report["errors"] = []
-                report["errors"].append(temp)
-        return (len(report.keys()) == 0), report
+                return self._args[name]
+
+    @classmethod
+    def buildErrorMessage(cls, arg_name, messsage):
+        return {"param": arg_name, "message": messsage}
+
+    def checkExist(self, key):
+        if key not in self._args.keys():
+            return "没有找到参数"
+        else:
+            return None
 
 
     # 检测字符串
     @classmethod
-    def CheckString(cls, arg, isnullable, range):
+    def CheckString(cls, arg):
         if not isinstance(arg, str):
             return "参数类型不为字符串"
 
-        if (arg is None) or len(arg) == 0 and not isnullable:
+        if (arg is None) or len(arg) == 0:
             return "参数为空"
         else:
             return None
 
     # 检测数值
     @classmethod
-    def CheckNumber(cls,  arg, isnullable, range):
+    def CheckNumber(cls,  arg, range):
         if not isinstance(arg, int) and not isinstance(arg, float):
             return "参数类型不为数值"
 
@@ -85,16 +136,16 @@ class ArgsChecker(object):
                     return "超出最小值:" + str(start)
             if end is not None:
                 if arg > end:
-                    return  "超出最大值:" + str(end)
+                    return "超出最大值:" + str(end)
         return None
 
     # 检测字典
     @classmethod
-    def CheckDict(cls, arg, isnullable, keys):
+    def CheckDict(cls, arg, keys):
         if not isinstance(arg, dict):
             return "参数类型不为字典"
 
-        if keys is None:
+        if keys is None or (len(arg.keys()) == 0):
             return None
 
         not_exist_keys = []
@@ -108,9 +159,12 @@ class ArgsChecker(object):
 
     # 检测数组
     @classmethod
-    def CheckArray(cls, arg, isnullable, value_range):
+    def CheckArray(cls, arg, value_range):
         if not isinstance(arg, list):
             return "参数类型不为数组"
+
+        if len(arg) == 0:
+            return "数据为空"
 
         if value_range is None:
             return None
@@ -121,19 +175,4 @@ class ArgsChecker(object):
             return None
         else:
             return "数组" + str(arg) + "超出限制范围: " +  str(value_range)
-
-'''
-args = {"name": 1, "height": 100, "nick": "", "dict": {"a": 1, "b": 2}, "array": [1, 2]}
-
-ck = ArgsChecker(args)
-ck.addNumerChecker(name="name", is_req=True, range=(1,10))
-ck.addNumerChecker(name="age", is_req=True, range=(0,200))
-ck.addNumerChecker(name="height", is_req=True, range=(0,200))
-ck.addStringChecker(name="nick", is_req=False, isnullable=False)
-ck.addDictChecker(name="dict", is_req=False, keys=["a", "b", "c", "d"])
-ck.addArrayChecker(name="array", is_req=False, value_range=[3, 4, 5])
-result = ck.check()
-
-print(result)
-'''
 

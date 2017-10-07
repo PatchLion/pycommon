@@ -44,35 +44,27 @@ def doResponse(func):
 def doRegister(request, args=None):
     if args is not None:
         args_checker = ArgsChecker(args)
-        args_checker.addStringChecker(name="username", is_req=True)
-        args_checker.addStringChecker(name="pwd", is_req=True)
-        args_checker.addStringChecker(name="nickname", is_req=False, isnullable=False)
-        args_checker.addNumerChecker(name="company_id", is_req=False, range=(-1, None))
-        args_checker.addNumerChecker(name="role_id", is_req=False, range=(-1, None))
-        successed, message = args_checker.check()
+        user_name = args_checker.addStringChecker(name="user_name", is_req=True)
+        password = args_checker.addStringChecker(name="password", is_req=True)
+        nick_name = args_checker.addStringChecker(name="nick_name", is_req=False)
+        company_id = args_checker.addNumerChecker(name="company_id", is_req=False, range=(-1, None))
+        role_id = args_checker.addNumerChecker(name="role_id", is_req=False, range=(-1, None))
+        successed, message = args_checker.checkResult()
 
         if not successed:
             return buildStandResponse(StateCode_InvaildParam, message)
 
-        username = args["username"]
-        pwd = args["pwd"]
-        exist_objs = records(ContractDB.session(), User, User.user_name == username)
+        exist_objs = records(ContractDB.session(), User, User.user_name == user_name)
         if len(exist_objs) > 0:
             return buildStandResponse(StateCode_UserExist)
         else:
-            pwdmd5 = stringMD5(pwd)  # 加密后的密码
-            user_params = {}
-            user_params["user_name"] = username
-            user_params["password"] = pwdmd5
-            if "nickname" in args.keys():
-                user_params["nick_name"] = args["nickname"]
-            if "company_id" in args.keys():
-                user_params["company_id"] = args["company_id"]
-            if "role_id" in args.keys():
-                user_params["role_id"] = args["role_id"]
-            new_user = User(**user_params)
+            pwdmd5 = stringMD5(password)  # 加密后的密码
+
+            params = args_checker.outputParams()
+            params["password"]=pwdmd5
+            new_user = User(**args_checker.outputParams())
             addOrRecord(ContractDB.session(), new_user)
-            exist_objs = records(ContractDB.session(), User, User.user_name == username)
+            exist_objs = records(ContractDB.session(), User, User.user_name == user_name)
             if len(exist_objs) > 0:
                 returndata = userFromRecord(exist_objs[0])
                 return buildStandResponse(StateCode_Success, returndata)
@@ -104,7 +96,7 @@ def companyByID(id):
         return ""
 
 #获取用户昵称
-def userNickNameByID(id):
+def usernick_nameByID(id):
     rs = records(ContractDB.session(), User, User.id == id)
     if len(rs) > 0:
         return rs[0].nick_name
@@ -124,8 +116,8 @@ def roleNameByID(id):
 def userFromRecord(record):
     returndata = {}
     returndata["id"] = record.id
-    returndata["username"] = record.user_name
-    returndata["nickname"] = record.nick_name
+    returndata["user_name"] = record.user_name
+    returndata["nick_name"] = record.nick_name
     returndata["role_id"] = record.role_id
     returndata["role_name"] = roleNameByID(record.role_id)
     returndata["auths"] = authByUserID(record.id) + authByRoleID(record.role_id)
@@ -146,17 +138,15 @@ def getUserList(request, args=None):
 def doUserLogin(request, args=None):
     if args is not None:
         args_checker = ArgsChecker(args)
-        args_checker.addStringChecker(name="username", is_req=True)
-        args_checker.addStringChecker(name="pwd", is_req=True)
-        successed, message = args_checker.check()
+        user_name = args_checker.addStringChecker(name="user_name", is_req=True)
+        password = args_checker.addStringChecker(name="password", is_req=True)
+        successed, message = args_checker.checkResult()
 
         if not successed:
             return buildStandResponse(StateCode_InvaildParam, message)
 
-        user = args["username"]
-        pwd = args["pwd"]
-        pwdmd5 = stringMD5(pwd)  # 加密后的密码)
-        exist_users = records(ContractDB.session(), User, and_(User.user_name == user, User.password == pwdmd5))
+        pwdmd5 = stringMD5(password)  # 加密后的密码)
+        exist_users = records(ContractDB.session(), User, and_(User.user_name == user_name, User.password == pwdmd5))
         if len(exist_users) > 0:
             returndata = userFromRecord(exist_users[0])
             return buildStandResponse(StateCode_Success, returndata)
@@ -167,44 +157,41 @@ def doUserLogin(request, args=None):
 def doUserModify(request, args=None):
     if args is not None:
         args_checker = ArgsChecker(args)
-        args_checker.addStringChecker(name="username", is_req=True)
-        args_checker.addStringChecker(name="nickname", is_req=False, isnullable=False)
-        args_checker.addNumerChecker(name="role_id", is_req=False, range=(-1, None))
-        args_checker.addNumerChecker(name="company_id", is_req=False, range=(-1, None))
-        args_checker.addDictChecker(name="password", is_req=False, keys=("old", "new"))
-        args_checker.addArrayChecker(name="auths", is_req=False, value_range=AuthNames.keys())
-        successed, message = args_checker.check()
+        user_name = args_checker.addStringChecker(name="user_name", is_req=True)
+        nick_name = args_checker.addStringChecker(name="nick_name", is_req=False)
+        role_id = args_checker.addNumerChecker(name="role_id", is_req=False, range=(-1, None))
+        company_id = args_checker.addNumerChecker(name="company_id", is_req=False, range=(-1, None))
+        passwords = args_checker.addDictChecker(name="password", is_req=False, keys=("old", "new"))
+        auths = args_checker.addArrayChecker(name="auths", is_req=False, value_range=AuthNames.keys())
+        successed, message = args_checker.checkResult()
 
         if not successed:
             return buildStandResponse(StateCode_InvaildParam, message)
 
-        username = args["username"]
-        if checkDataVaild(username):
-            objs = records(ContractDB.session(), User, User.user_name == username)
+        if checkDataVaild(user_name):
+            objs = records(ContractDB.session(), User, User.user_name == user_name)
             if len(objs) > 0:
                 res = {}
                 existuser = objs[0]
-                if "nickname" in args.keys():
-                    existuser.nick_name = args["nickname"]
-                    res["nickname"] = True
-                if "role_id" in args.keys():
+                if nick_name is not None:
+                    existuser.nick_name = nick_name
+                    res["nick_name"] = True
+                if role_id is not None:
                     existuser.role_id = args["role_id"]
                     res["role_id"] = True
-                if "company_id" in args.keys():
-                    existuser.company_id = args["company_id"]
+                if company_id is not None:
+                    existuser.company_id = company_id
                     res["company_id"] = True
-                if "auths" in args.keys():
+                if auths is not None:
                     removeRecords(ContractDB.session(), UserAuth, UserAuth.user_id==existuser.id)
-                    auths = args["auths"]
                     auth_records = [UserAuth(user_id=existuser.id, auth=auth) for auth in auths]
-                    if len(auth_records) > 0:
-                        size = addOrRecord(ContractDB.session(), auth_records)
-                    res["auths"] = True
-                if "password" in args.keys():
-                    oldpwd = args["password"].get("old", "")
-                    newpwd = args["password"].get("new", "")
+                    size = addOrRecord(ContractDB.session(), auth_records)
+                    res["auths"] = (size > 0)
+                if passwords is not None:
+                    oldpwd = passwords["old"]
+                    newpwd = passwords["new"]
                     if checkDataVaild(oldpwd) and checkDataVaild(newpwd):
-                        temps = records(ContractDB.session(), User, and_(User.user_name == username, User.password==stringMD5(oldpwd)))
+                        temps = records(ContractDB.session(), User, and_(User.user_name == user_name, User.password==stringMD5(oldpwd)))
                         if len(temps) > 0:
                             existuser.password = stringMD5(newpwd)
                             res["password"] = True
@@ -226,52 +213,33 @@ def doProjectCreate(request, args=None):
     if args is not None:
 
         args_checker = ArgsChecker(args)
-        args_checker.addStringChecker(name="name", is_req=True)
-        args_checker.addArrayChecker(name="moneytypes", is_req=True, value_range=None)
-        args_checker.addStringChecker(name="addr", is_req=True)
-        args_checker.addStringChecker(name="content", is_req=True)
-        args_checker.addNumerChecker(name="buildtype_id", is_req=True, range=(0, None))
-        args_checker.addNumerChecker(name="trade_id", is_req=True, range=(0, None))
-        args_checker.addNumerChecker(name="start_date", is_req=True, range=(0, None))
-        args_checker.addNumerChecker(name="last_date", is_req=True, range=(0, None))
-        args_checker.addNumerChecker(name="rate_of_profit", is_req=False, range=(0.0, 1.0))
-        successed, message = args_checker.check()
+        name = args_checker.addStringChecker(name="name", is_req=True)
+        moneytypes = args_checker.addArrayChecker(name="moneytypes", is_req=True, value_range=None)
+        addr = args_checker.addStringChecker(name="addr", is_req=True)
+        content = args_checker.addStringChecker(name="content", is_req=True)
+        buildtype_id = args_checker.addNumerChecker(name="buildtype_id", is_req=True, range=(0, None))
+        trade_id = args_checker.addNumerChecker(name="trade_id", is_req=True, range=(0, None))
+        start_date = args_checker.addNumerChecker(name="start_date", is_req=True, range=(0, None))
+        last_date = args_checker.addNumerChecker(name="last_date", is_req=True, range=(0, None))
+        rate_of_profit = args_checker.addNumerChecker(name="rate_of_profit", is_req=False, range=(0.0, 1.0))
+        successed, message = args_checker.checkResult()
 
         if not successed:
             return buildStandResponse(StateCode_InvaildParam, message)
 
-        name = args.get("name")
-        moneytypes = args.get("moneytypes")
         for type in moneytypes:
             type_checker = ArgsChecker(type)
             type_checker.addNumerChecker(name="type", is_req=True, range = (0, None))
             type_checker.addNumerChecker(name="money", is_req=True, range = (0, None))
-            temp1, temp2 = type_checker.check()
+            temp1, temp2 = type_checker.checkResult()
             if not temp1:
                 return buildStandResponse(StateCode_InvaildParam, "moneytypes参数校验失败:" + str(temp2))
 
 
-        addr = args.get("addr")
-        content = args.get("content")
-        buildtype_id = args.get("buildtype_id")
-        trade_id = args.get("trade_id")
-        start_date = args.get("start_date")
-        last_date = args.get("last_date")
-
         objs = records(ContractDB.session(), Project, Project.name == name)
         if len(objs) == 0:
-            params = {}
-            params["name"] = name
-            params["addr"] = addr
-            params["content"] = content
-            params["buildtype_id"] = buildtype_id
-            params["trade_id"] = trade_id
-            params["start_date"] = start_date
-            params["last_date"] = last_date
-            if "rate_of_profit" in args.keys():
-                params["rate_of_profit"] = args.get("rate_of_profit")
-            project = Project(**params)
-            size = addOrRecord(ContractDB.session(), project)
+            project = Project(**args_checker.outputParams())
+            addOrRecord(ContractDB.session(), project)
             objs = records(ContractDB.session(), Project, Project.name == name)
             if len(objs) > 0:
                 #添加资金类型
@@ -297,6 +265,7 @@ def doProjectCreate(request, args=None):
         else:
             return buildStandResponse(StateCode_ProjectExist)
 
+'''
 @doResponse
 def doContractHistory(request, args=None):
     if args is not None:
@@ -311,71 +280,95 @@ def doContractHistory(request, args=None):
                 return buildStandResponse(StateCode_FailedToCreateContractHistory)
         else:
             return buildStandResponse(StateCode_InvaildParam)
+'''
+def contractNameByID(id):
+    contracts = records(ContractDB.session(), Contract, Contract.id == id)
+    if len(contracts) > 0:
+        return contracts[0].name
+    else:
+        return ""
 
+def contractFromRecord(record):
+    res = {}
+    res["name"] = record[0].name
+    res["project_id"] = record[0].project_id
+    res["project_name"] = projectNameByID(record[0].project_id)
+    companies = records(ContractDB.session(), Company, Company.id == record[0].company_id)
+    if len(companies) > 0:
+        res["company"] = companyFromRecord(companies[0])
+    else:
+        res["company"] = {"company_id": record[0].company_id}
+    res["retention_money"] = record[0].retention_money
+    res["retention_money_date"] = record[0].retention_money_date
+    res["parent_contract_id"] = record[0].parent_contract_id
+    res["parent_contract_name"] = contractNameByID(record[0].parent_contract_id)
+    res["money"] = record[0].money
+    res["place_of_performance"] = record[0].place_of_performance
+    res["date_of_performance"] = record[0].date_of_performance
+    res["type_of_performance"] = record[0].type_of_performance
+    res["note"] = record[0].note
+    res["code"] = record[0].code
+    res["tag_object_name"] = record[0].tag_object_name
+    res["content"] = record[0].content
+    res["scope"] = record[0].scope
+    res["retention_money_percent"] = record[0].retention_money_percent
+    res["responsible_person"] = record[0].responsible_person
+    res["responsible_person_contact"] = record[0].responsible_person_contact
+    res["pay_condtion"] = record[0].pay_condtion
+    res["sign_date"] = record[0].sign_date
+    res["start_date"] = record[0].start_date
+    res["progress"] = record[0].progress
+    return res
 
 @doResponse
 def doContractCreate(request, args=None):
     if args is not None:
-        project_id= args.get("project_id", -1)
-        contract_name= args.get("name", "")
-        company_id= args.get("company_id", -1)
-        retention_money= args.get("retention_money", 0)
-        retention_money_date= args.get("retention_money_date", 0)
-        parent_contract_id= args.get("parent_contract_id", -1)
-        money= args.get("money", 0)
-        pay_money= args.get("pay_money", 0)
-        progress= args.get("progress", 0)
-        second_party_name= args.get("second_party_name", "")
-        place_of_performance= args.get("place_of_performance", "")
-        date_of_performance= args.get("date_of_performance", "")
-        type_of_performance= args.get("type_of_performance", "")
-        note= args.get("note", "")
 
-        if checkDataVaild(contract_name) and project_id > -1 and company_id > -1 and checkDataVaild(second_party_name):
-            record = records(ContractDB.session(), Contract, Contract.name == contract_name)
-            if len(record) == 0:
-                contract = Contract(project_id=project_id,
-                                    name=contract_name,
-                                    company_id=company_id,
-                                    retention_money= retention_money,
-                                    retention_money_date=retention_money_date,
-                                    parent_contract_id=parent_contract_id,
-                                    money=money,
-                                    pay_money = pay_money,
-                                    progress = progress,
-                                    second_party_name= second_party_name,
-                                    place_of_performance= place_of_performance,
-                                    date_of_performance= date_of_performance,
-                                    type_of_performance= type_of_performance,
-                                    note= note)
 
-                addOrRecord(ContractDB.session(), contract)
-                record = records(ContractDB.session(), Contract, Contract.name == contract_name)
-                if len(record) > 0:
-                    res = {}
-                    res["contract_id"] = record[0].id
-                    res["project_id"] = record[0].project_id
-                    res["contract_name"] = record[0].name
-                    res["company_id"] = record[0].company_id
-                    res["retention_money"] = record[0].retention_money
-                    res["retention_money_date"] = record[0].retention_money_date
-                    res["parent_contract_id"] = record[0].parent_contract_id
-                    res["money"] = record[0].money
-                    res["pay_money"] = record[0].pay_money
-                    res["progress"] = record[0].progress
-                    res["second_party_name"] = record[0].second_party_name
-                    res["place_of_performance"] = record[0].place_of_performance
-                    res["date_of_performance"] = record[0].date_of_performance
-                    res["type_of_performance"] = record[0].type_of_performance
-                    res["note"] = record[0].note
-                    return buildStandResponse(StateCode_Success, res)
-                else:
-                    return buildStandResponse(StateCode_FailedToCreateContract)
+        args_checker = ArgsChecker(args)
+        name = args_checker.addStringChecker(name="name", is_req=True)
+        project_id = args_checker.addNumerChecker(name="project_id", is_req=True, range=(0, None))
+        company_id = args_checker.addNumerChecker(name="company_id", is_req=True, range=(0, None))
+        retention_money = args_checker.addNumerChecker(name="retention_money", is_req=True, range=(0, None))
+        retention_money_date = args_checker.addNumerChecker(name="retention_money_date", is_req=True, range=(0, None))
+        parent_contract_id = args_checker.addNumerChecker(name="parent_contract_id", is_req=True, range=(-1, None))
+        money = args_checker.addNumerChecker(name="money", is_req=True, range=(0, None))
+        progress = args_checker.addNumerChecker(name="progress", is_req=False, range=(0, 100))
+        place_of_performance = args_checker.addStringChecker(name="place_of_performance", is_req=True)
+        date_of_performance = args_checker.addStringChecker(name="date_of_performance", is_req=True)
+        type_of_performance = args_checker.addStringChecker(name="type_of_performance", is_req=True)
+        note = args_checker.addStringChecker(name="note", is_req=False)
+        code = args_checker.addStringChecker(name="code", is_req=True)
+        tag_object_name = args_checker.addStringChecker(name="tag_object_name", is_req=True)
+        content = args_checker.addStringChecker(name="content", is_req=True)
+        scope = args_checker.addStringChecker(name="scope", is_req=True)
+        retention_money_percent = args_checker.addNumerChecker(name="retention_money_percent", is_req=False, range=(0.0, 1.0))
+        responsible_person = args_checker.addStringChecker(name="responsible_person", is_req=False)
+        responsible_person_contact = args_checker.addStringChecker(name="responsible_person_contact", is_req=False)
+        pay_condtion = args_checker.addStringChecker(name="pay_condtion", is_req=False)
+        sign_date = args_checker.addNumerChecker(name="sign_date", is_req=True, range=(0, None))
+        start_date = args_checker.addNumerChecker(name="start_date", is_req=True, range=(0, None))
+        successed, message = args_checker.checkResult()
+
+        if not successed:
+            return buildStandResponse(StateCode_InvaildParam, message)
+
+        record = records(ContractDB.session(), Contract, Contract.name == name)
+        if len(record) == 0:
+
+            contract = Contract(**args_checker.outputParams())
+
+            addOrRecord(ContractDB.session(), contract)
+            record = records(ContractDB.session(), Contract, Contract.name == name)
+            if len(record) > 0:
+                res = contractFromRecord(record)
+                return buildStandResponse(StateCode_Success, res)
             else:
-                return buildStandResponse(StateCode_ContractExist)
+                return buildStandResponse(StateCode_FailedToCreateContract)
         else:
-            return buildStandResponse(StateCode_InvaildParam)
-        '''
+            return buildStandResponse(StateCode_ContractExist)
+
+'''
 #获取项目审批信息
 def approveInfoByProjectID(id):
     objs = records(ContractDB.session(), AskApprove, AskApprove.project_id==id)
@@ -432,17 +425,17 @@ def projectFromRecord(record):
     apprs = approveInfoByProjectID(record.id)
     if len(apprs) >  0:
         returndata["first_approve_user_id"] = apprs[0].first_user_id
-        returndata["first_approve_user_nickname"] = userNickNameByID(apprs[0].first_user_id)
+        returndata["first_approve_user_nick_name"] = usernick_nameByID(apprs[0].first_user_id)
         returndata["is_first_approve_user_passed"] = apprs[0].is_first_passed
         returndata["second_approve_user_id"] = apprs[0].second_user_id
-        returndata["second_approve_user_nickname"] = userNickNameByID(apprs[0].second_user_id)
+        returndata["second_approve_user_nick_name"] = usernick_nameByID(apprs[0].second_user_id)
         returndata["is_second_approve_user_passed"] = apprs[0].is_second_passed
     else:
         returndata["first_approve_user_id"] = -1
-        returndata["first_approve_user_nickname"] = ""
+        returndata["first_approve_user_nick_name"] = ""
         returndata["is_first_approve_user_passed"] = False
         returndata["second_approve_user_id"] = -1
-        returndata["second_approve_user_nickname"] = ""
+        returndata["second_approve_user_nick_name"] = ""
         returndata["is_second_approve_user_passed"] = False
     '''
     return returndata
@@ -451,22 +444,20 @@ def projectFromRecord(record):
 def getProjectList(request, args=None):
     if args is not None:
         args_checker = ArgsChecker(args)
-        args_checker.addNumerChecker(name="id", is_req=False, range=(0, None))
-        args_checker.addStringChecker(name="name", is_req=False)
-        successed, message = args_checker.check()
+        id = args_checker.addNumerChecker(name="id", is_req=False, range=(0, None))
+        name = args_checker.addStringChecker(name="name", is_req=False)
+        successed, message = args_checker.checkResult()
 
         if not successed:
             return buildStandResponse(StateCode_InvaildParam, message)
 
-        isIDExist = ("id" in args.keys())
-        isNameExist = ("name" in args.keys())
         cond = None
-        if isIDExist and isNameExist:
-            cond = and_(Project.id == args["id"], Project.name == args["name"])
-        elif isIDExist:
-            cond = (Project.id == args["id"])
-        elif isNameExist:
-            cond = (Project.name == args["name"])
+        if id is not None and name is not None:
+            cond = and_(Project.id == id, Project.name == name)
+        elif id is not None:
+            cond = (Project.id == id)
+        elif name is not None:
+            cond = (Project.name == name)
         if cond is None:
             projects = records(ContractDB.session(), Project)
         else:
@@ -479,25 +470,28 @@ def getProjectList(request, args=None):
             project_json["projects"].append(temp)
         return buildStandResponse(StateCode_Success, project_json)
 
+def roleFromRecord(record):
+    res = {}
+    res["id"] = record.id
+    res["name"] = record.name
+    return res
+
 @doResponse
 def doCreateRole(request, args=None):
     if args is not None:
         args_checker = ArgsChecker(args)
-        args_checker.addStringChecker(name="name", is_req=True)
-        successed, message = args_checker.check()
+        name = args_checker.addStringChecker(name="name", is_req=True)
+        successed, message = args_checker.checkResult()
 
         if not successed:
             return buildStandResponse(StateCode_InvaildParam, message)
 
-        role_name = args["name"]
-        objs = records(ContractDB.session(), Role, Role.name == role_name)
+        objs = records(ContractDB.session(), Role, Role.name == name)
         if len(objs) == 0:
-            id = createUuid()
-            size = addOrRecord(ContractDB.session(), Role(name=role_name))
-            if size > 0:
-                res_json = {}
-                res_json["id"] = id
-                res_json["name"] = role_name
+            addOrRecord(ContractDB.session(), Role(name=name))
+            objs = records(ContractDB.session(), Role, Role.name==name)
+            if len(objs) > 0:
+                res_json = roleFromRecord(objs[0])
                 return buildStandResponse(StateCode_Success, res_json)
             else:
                 return buildStandResponse(StateCode_FailedToCreateRole)
@@ -608,9 +602,7 @@ def getRoleList(request, args=None):
         res_json = {}
         res_json["roles"] = []
         for obj in objects:
-            temp = {}
-            temp["id"] = obj.id
-            temp["name"] = obj.name
+            temp = roleFromRecord(obj)
             res_json["roles"].append(temp)
         return buildStandResponse(StateCode_Success, res_json)
 
@@ -618,27 +610,27 @@ def getRoleList(request, args=None):
 def getContractList(request, args=None):
     if args is not None:
         args_checker = ArgsChecker(args)
-        args_checker.addNumerChecker(name="project_id", is_req=False, range=(0, None))
-        args_checker.addNumerChecker(name="company_id", is_req=False, range=(0, None))
-        args_checker.addNumerChecker(name="contract_id", is_req=False, range=(0, None))
-        args_checker.addNumerChecker(name="parent_contract_id", is_req=False, range=(0, None))
-        successed, message = args_checker.check()
+        project_id = args_checker.addNumerChecker(name="project_id", is_req=False, range=(0, None))
+        company_id = args_checker.addNumerChecker(name="company_id", is_req=False, range=(0, None))
+        contract_id = args_checker.addNumerChecker(name="contract_id", is_req=False, range=(0, None))
+        parent_contract_id = args_checker.addNumerChecker(name="parent_contract_id", is_req=False, range=(0, None))
+        successed, message = args_checker.checkResult()
 
         if not successed:
             return buildStandResponse(StateCode_InvaildParam, message)
 
         conds = []
-        if "project_id" in args.keys():
-            conds.append(Contract.project_id == args["project_id"])
+        if project_id is not None:
+            conds.append(Contract.project_id == project_id)
 
-        if "company_id" in args.keys():
-            conds.append(Contract.company_id == args["company_id"])
+        if company_id is not None:
+            conds.append(Contract.company_id == company_id)
 
-        if "contract_id" in args.keys():
-            conds.append(Contract.id == args["contract_id"])
+        if contract_id is not None:
+            conds.append(Contract.id == contract_id)
 
-        if "parent_contract_id" in args.keys():
-            conds.append(Contract.parent_contract_id == args["parent_contract_id"])
+        if parent_contract_id is not None:
+            conds.append(Contract.parent_contract_id == parent_contract_id)
 
         if len(conds) == 0:
             objs = records(ContractDB.session(), Contract)
@@ -648,32 +640,7 @@ def getContractList(request, args=None):
         res_json = {}
         res_json["contracts"] = []
         for cont in objs:
-            res = {}
-            res["id"] = cont.id
-            res["project_id"] = cont.project_id
-            res["name"] = cont.name
-            res["company_id"] = cont.company_id
-            res["retention_money"] = cont.retention_money
-            res["retention_money_date"] = cont.retention_money_date
-            res["parent_contract_id"] = cont.parent_contract_id
-            res["money"] = cont.money
-            res["pay_money"] = cont.pay_money
-            res["progress"] = cont.progress
-            res["second_party_name"] = cont.second_party_name
-            res["place_of_performance"] = cont.place_of_performance
-            res["date_of_performance"] = cont.date_of_performance
-            res["type_of_performance"] = cont.type_of_performance
-            res["note"] = cont.note
-            files = []
-            file_records = records(ContractDB.session(), File, File.contract_id==cont.id)
-            for f in file_records:
-                temp = {}
-                temp["filename"] = f.name
-                temp["classify"] = f.classify
-                temp["contract_id"] = f.contract_id
-                temp["note"] = f.note
-                files.append(temp)
-            res["files"] = files
+            res = contractFromRecord(cont)
             res_json["contracts"].append(res)
         return buildStandResponse(StateCode_Success, res_json)
 
@@ -686,7 +653,7 @@ def doUpload(request, args=None):
         args_checker.addStringChecker(name="classify", is_req=True)
         args_checker.addNumerChecker(name="contract_id", is_req=True, range=(0, None))
         args_checker.addStringChecker(name="note", is_req=False)
-        successed, message = args_checker.check()
+        successed, message = args_checker.checkResult()
 
         if not successed:
             return buildStandResponse(StateCode_InvaildParam, message)
@@ -738,29 +705,69 @@ def companyFromRecord(record):
 def doCompanyCreate(request, args=None):
     if args is not None:
         args_checker = ArgsChecker(args)
-        args_checker.addStringChecker(name="name", is_req=True)
-        successed, message = args_checker.check()
+        name = args_checker.addStringChecker(name="name", is_req=True)
+        is_outsourced = args_checker.addBooleanChecker(name="is_outsourced", is_req=False)
+        successed, message = args_checker.checkResult()
 
         if not successed:
             return buildStandResponse(StateCode_InvaildParam, message)
 
-        name = args["name"]
-        if checkDataVaild(name):
-            record = records(ContractDB.session(), Company, Company.name == name)
-            if len(record) == 0:
-                params = {}
-                params["name"] = name
-                if "is_outsourced" in args.keys():
-                    params["is_outsourced"] = args["is_outsourced"]
-                com = Company(**params)
-                addOrRecord(ContractDB.session(), com)
-                objs = records(ContractDB.session(), Company, Company.name == name)
-                if len(objs) > 0:
-                    res = companyFromRecord(objs[0])
-                    return buildStandResponse(StateCode_Success, res)
-                else:
-                    return buildStandResponse(StateCode_FailedToCreateCompany)
+        record = records(ContractDB.session(), Company, Company.name == name)
+        if len(record) == 0:
+            com = Company(**args_checker.outputParams())
+            addOrRecord(ContractDB.session(), com)
+            objs = records(ContractDB.session(), Company, Company.name == name)
+            if len(objs) > 0:
+                res = companyFromRecord(objs[0])
+                return buildStandResponse(StateCode_Success, res)
             else:
-                return buildStandResponse(StateCode_CompanyExist)
+                return buildStandResponse(StateCode_FailedToCreateCompany)
         else:
-            return buildStandResponse(StateCode_InvaildParam)
+            return buildStandResponse(StateCode_CompanyExist)
+
+def billFromRecord(record):
+    res = {}
+    res["id"] = record.id
+    res["contract_id"] = record.contract_id
+    res["bill_number"] = record.bill_number
+    res["datetime"] = record.datetime
+    res["abstract"] = record.abstract
+    res["payment_amount"] = record.payment_amount
+    res["not_settlement_amount"] = record.not_settlement_amount
+    res["bill_amount"] = record.bill_amount
+    res["receipt_amount"] = record.receipt_amount
+    res["payment_bank_and_type"] = record.payment_bank_and_type
+    res["bill_file_path"] = record.bill_file_path
+    res["note"] = record.note
+    return res
+@doResponse
+def doBillCreate(request, args=None):
+    if args is not None:
+        args_checker = ArgsChecker(args)
+        contract_id = args_checker.addNumerChecker("contract_id", is_req=True, range=(0, None))
+        bill_number = args_checker.addStringChecker("bill_number", is_req=True)
+        datetime = args_checker.addNumerChecker("datetime", is_req=True, range=(0, None))
+        abstract = args_checker.addStringChecker("abstract", is_req=True)
+        payment_amount = args_checker.addNumerChecker("payment_amount", is_req=False, range=(0, None))
+        not_settlement_amount = args_checker.addNumerChecker("not_settlement_amount", is_req=False, range=(0, None))
+        bill_amount = args_checker.addNumerChecker("bill_amount", is_req=False, range=(0, None))
+        receipt_amount = args_checker.addNumerChecker("receipt_amount", is_req=False, range=(0, None))
+        payment_bank_and_type = args_checker.addStringChecker("payment_bank_and_type", is_req=True)
+        note = args_checker.addStringChecker("note", is_req=False)
+        successed, message = args_checker.checkResult()
+
+        if not successed:
+            return buildStandResponse(StateCode_InvaildParam, message)
+
+        record = records(ContractDB.session(), ContractBill, ContractBill.bill_number == bill_number)
+        if len(record) == 0:
+            bill = ContractBill(**args_checker.outputParams())
+            addOrRecord(ContractDB.session(), bill)
+            objs = records(ContractDB.session(), ContractBill, ContractBill.bill_number == bill_number)
+            if len(objs) > 0:
+                res = billFromRecord(objs[0])
+                return buildStandResponse(StateCode_Success, res)
+            else:
+                return buildStandResponse(StateCode_FailedToCreateContractBill)
+        else:
+            return buildStandResponse(StateCode_CompanyExist)
