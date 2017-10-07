@@ -161,7 +161,7 @@ def doUserModify(request, args=None):
         nick_name = args_checker.addStringChecker(name="nick_name", is_req=False)
         role_id = args_checker.addNumerChecker(name="role_id", is_req=False, range=(-1, None))
         company_id = args_checker.addNumerChecker(name="company_id", is_req=False, range=(-1, None))
-        passwords = args_checker.addDictChecker(name="password", is_req=False, keys=("old", "new"))
+        password = args_checker.addStringChecker(name="password", is_req=False, keys=("old", "new"))
         auths = args_checker.addArrayChecker(name="auths", is_req=False, value_range=AuthNames.keys())
         successed, message = args_checker.checkResult()
 
@@ -187,16 +187,8 @@ def doUserModify(request, args=None):
                     auth_records = [UserAuth(user_id=existuser.id, auth=auth) for auth in auths]
                     size = addOrRecord(ContractDB.session(), auth_records)
                     res["auths"] = (size > 0)
-                if passwords is not None:
-                    oldpwd = passwords["old"]
-                    newpwd = passwords["new"]
-                    if checkDataVaild(oldpwd) and checkDataVaild(newpwd):
-                        temps = records(ContractDB.session(), User, and_(User.user_name == user_name, User.password==stringMD5(oldpwd)))
-                        if len(temps) > 0:
-                            existuser.password = stringMD5(newpwd)
-                            res["password"] = True
-                        else:
-                            res["password"] = False
+                if password is not None:
+                    existuser.password = stringMD5(password)
 
                 size =addOrRecord(ContractDB.session(), existuser)
                 if size > 0:
