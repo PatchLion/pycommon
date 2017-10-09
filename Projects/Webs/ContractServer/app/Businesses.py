@@ -293,7 +293,7 @@ def contractFromRecord(record):
     res["retention_money"] =record.retention_money
     res["retention_money_date"] =record.retention_money_date
     res["parent_contract_id"] =record.parent_contract_id
-    res["parent_contract_name"] = contractNameByID(record[0].parent_contract_id)
+    res["parent_contract_name"] = contractNameByID(record.parent_contract_id)
     res["money"] =record.money
     res["place_of_performance"] =record.place_of_performance
     res["date_of_performance"] =record.date_of_performance
