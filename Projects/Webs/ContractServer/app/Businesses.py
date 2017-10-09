@@ -747,7 +747,7 @@ def uploadBill(request, args=None):
                     if note is not None:
                         params["note"] = note
 
-                    size = addOrRecord(ContractDB.session(), File(**params))
+                    size = addOrRecord(ContractDB.session(), ContractBill(**params))
                     if size > 0:
                         return buildStandResponse(StateCode_Success, {})
                     else:
