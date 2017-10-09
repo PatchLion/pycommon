@@ -716,7 +716,7 @@ def uploadBill(request, args=None):
             os.makedirs(dir)
         child_path = os.path.join(child_path, filename)
         fullpath = os.path.join(FILE_RESTORE_ROOT_DIR, child_path)
-
+        print("full path:", fullpath)
         if os.path.exists(fullpath):
             return buildStandResponse(StateCode_FileExist)
 
