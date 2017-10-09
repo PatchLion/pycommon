@@ -282,34 +282,36 @@ def contractNameByID(id):
 
 def contractFromRecord(record):
     res = {}
-    res["name"] = record[0].name
-    res["project_id"] = record[0].project_id
-    res["project_name"] = projectNameByID(record[0].project_id)
-    companies = records(ContractDB.session(), Company, Company.id == record[0].company_id)
+    res["id"] = record.id
+    res["name"] = record.name
+    res["project_id"] = record.project_id
+    res["project_name"] = projectNameByID(record.project_id)
+    companies = records(ContractDB.session(), Company, Company.id == record.company_id)
+    res["company_id"] = record.company_id
     if len(companies) > 0:
-        res["company"] = companyFromRecord(companies[0])
-    else:
-        res["company"] = {"company_id": record[0].company_id}
-    res["retention_money"] = record[0].retention_money
-    res["retention_money_date"] = record[0].retention_money_date
-    res["parent_contract_id"] = record[0].parent_contract_id
-    res["parent_contract_name"] = contractNameByID(record[0].parent_contract_id)
-    res["money"] = record[0].money
-    res["place_of_performance"] = record[0].place_of_performance
-    res["date_of_performance"] = record[0].date_of_performance
-    res["type_of_performance"] = record[0].type_of_performance
-    res["note"] = record[0].note
-    res["code"] = record[0].code
-    res["tag_object_name"] = record[0].tag_object_name
-    res["content"] = record[0].content
-    res["scope"] = record[0].scope
-    res["retention_money_percent"] = record[0].retention_money_percent
-    res["responsible_person"] = record[0].responsible_person
-    res["responsible_person_contact"] = record[0].responsible_person_contact
-    res["pay_condtion"] = record[0].pay_condtion
-    res["sign_date"] = record[0].sign_date
-    res["start_date"] = record[0].start_date
-    res["progress"] = record[0].progress
+        res["company_name"] = companies[0].name
+        res["company_is_outsourced"] = companies[0].is_outsourced
+
+    res["retention_money"] =record.retention_money
+    res["retention_money_date"] =record.retention_money_date
+    res["parent_contract_id"] =record.parent_contract_id
+    res["parent_contract_name"] = contractNameByID(record.parent_contract_id)
+    res["money"] =record.money
+    res["place_of_performance"] =record.place_of_performance
+    res["date_of_performance"] =record.date_of_performance
+    res["type_of_performance"] =record.type_of_performance
+    res["note"] =record.note
+    res["code"] =record.code
+    res["tag_object_name"] =record.tag_object_name
+    res["content"] =record.content
+    res["scope"] =record.scope
+    res["retention_money_percent"] =record.retention_money_percent
+    res["responsible_person"] =record.responsible_person
+    res["responsible_person_contact"] =record.responsible_person_contact
+    res["pay_condtion"] =record.pay_condtion
+    res["sign_date"] =record.sign_date
+    res["start_date"] =record.start_date
+    res["progress"] =record.progress
     return res
 
 @doResponse
