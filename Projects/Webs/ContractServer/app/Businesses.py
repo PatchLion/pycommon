@@ -286,11 +286,12 @@ def contractFromRecord(record):
     res["name"] = record.name
     res["project_id"] = record.project_id
     res["project_name"] = projectNameByID(record.project_id)
-    companies = records(ContractDB.session(), Company, Company.id == record.company_id)
+    companies = records(ContractDB.session(), Company, Company.id == )
+    res["company_id"] = record.company_id
     if len(companies) > 0:
-        res["company"] = companyFromRecord(companies[0])
-    else:
-        res["company"] = {"company_id":record.company_id}
+        res["company_name"] = companies[0].name
+        res["company_is_outsourced"] = companies[0].is_outsourced
+
     res["retention_money"] =record.retention_money
     res["retention_money_date"] =record.retention_money_date
     res["parent_contract_id"] =record.parent_contract_id
