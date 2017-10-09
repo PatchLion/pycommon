@@ -353,9 +353,9 @@ def doContractCreate(request, args=None):
             contract = Contract(**args_checker.outputParams())
 
             addOrRecord(ContractDB.session(), contract)
-            record = records(ContractDB.session(), Contract, Contract.name == name)
-            if len(record) > 0:
-                res = contractFromRecord(record)
+            objs = records(ContractDB.session(), Contract, Contract.name == name)
+            if len(objs) > 0:
+                res = contractFromRecord(objs[0])
                 return buildStandResponse(StateCode_Success, res)
             else:
                 return buildStandResponse(StateCode_FailedToCreateContract)
