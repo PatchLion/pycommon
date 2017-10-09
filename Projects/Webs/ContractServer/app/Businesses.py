@@ -286,7 +286,7 @@ def contractFromRecord(record):
     res["name"] = record.name
     res["project_id"] = record.project_id
     res["project_name"] = projectNameByID(record.project_id)
-    companies = records(ContractDB.session(), Company, Company.id == )
+    companies = records(ContractDB.session(), Company, Company.id == record.company_id)
     res["company_id"] = record.company_id
     if len(companies) > 0:
         res["company_name"] = companies[0].name
