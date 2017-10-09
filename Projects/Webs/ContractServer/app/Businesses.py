@@ -282,6 +282,7 @@ def contractNameByID(id):
 
 def contractFromRecord(record):
     res = {}
+    res["id"] = record.id
     res["name"] = record.name
     res["project_id"] = record.project_id
     res["project_name"] = projectNameByID(record.project_id)
