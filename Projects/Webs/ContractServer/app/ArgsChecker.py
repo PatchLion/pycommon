@@ -19,7 +19,7 @@ class ArgsChecker(object):
     def checkResult(self):
         k,v = len(self._results) == 0, self._results
         print("args =", self._args, "\nCheck result =", k, v)
-        return k,v
+        return k,{"errors": v}
 
     def addBooleanChecker(self, name, is_req = False):
         exist_message = self.checkExist(key=name)
