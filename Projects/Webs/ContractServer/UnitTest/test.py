@@ -49,7 +49,7 @@ class ApiTest(unittest.TestCase):
         api = "/api/user/modify"
         get(api, {"user_name": "a", "nickname": "测试"}, self.assertEquals, [405])
         post(api, {"user_name": "a", "nickname": "测试", "auths":[1, 3]}, self.assertEquals, [200, StateCode_Success])
-        post(api, {"user_name": "a", "nickname": "测试", "password":{"old":"b", "new":"c"}}, self.assertEquals, [200, StateCode_Success])
+        post(api, {"user_name": "a", "nickname": "测试", "password":"c"}, self.assertEquals, [200, StateCode_Success])
 
 
         # 用户列表

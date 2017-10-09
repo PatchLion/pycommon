@@ -161,7 +161,7 @@ def doUserModify(request, args=None):
         nick_name = args_checker.addStringChecker(name="nick_name", is_req=False)
         role_id = args_checker.addNumerChecker(name="role_id", is_req=False, range=(-1, None))
         company_id = args_checker.addNumerChecker(name="company_id", is_req=False, range=(-1, None))
-        password = args_checker.addStringChecker(name="password", is_req=False, keys=("old", "new"))
+        password = args_checker.addStringChecker(name="password", is_req=False)
         auths = args_checker.addArrayChecker(name="auths", is_req=False, value_range=AuthNames.keys())
         successed, message = args_checker.checkResult()
 
@@ -598,6 +598,56 @@ def getRoleList(request, args=None):
             res_json["roles"].append(temp)
         return buildStandResponse(StateCode_Success, res_json)
 
+def tradeFromRecord(record):
+    res = {}
+    res["id"] = record.id
+    res["name"] = record.name
+    return res
+
+@doResponse
+def getTradeList(request, args=None):
+    if args is not None:
+        objects = records(ContractDB.session(), Trade)
+        res_json = {}
+        res_json["trades"] = []
+        for obj in objects:
+            temp = tradeFromRecord(obj)
+            res_json["trades"].append(temp)
+        return buildStandResponse(StateCode_Success, res_json)
+
+def buildTypeFromRecord(record):
+    res = {}
+    res["id"] = record.id
+    res["name"] = record.name
+    return res
+
+@doResponse
+def getBuildTypeList(request, args=None):
+    if args is not None:
+        objects = records(ContractDB.session(), BuildType)
+        res_json = {}
+        res_json["buildtypes"] = []
+        for obj in objects:
+            temp = buildTypeFromRecord(obj)
+            res_json["buildtypes"].append(temp)
+        return buildStandResponse(StateCode_Success, res_json)
+
+def moneyTypeFromRecord(record):
+    res = {}
+    res["id"] = record.id
+    res["name"] = record.name
+    return res
+
+@doResponse
+def getMoneyTypeList(request, args=None):
+    if args is not None:
+        objects = records(ContractDB.session(), MoneyType)
+        res_json = {}
+        res_json["moneytypes"] = []
+        for obj in objects:
+            temp = moneyTypeFromRecord(obj)
+            res_json["moneytypes"].append(temp)
+        return buildStandResponse(StateCode_Success, res_json)
 @doResponse
 def getContractList(request, args=None):
     if args is not None:
@@ -637,28 +687,33 @@ def getContractList(request, args=None):
         return buildStandResponse(StateCode_Success, res_json)
 
 @doResponse
-def doUpload(request, args=None):
+def uploadBill(request, args=None):
     if args is not None:
         args_checker = ArgsChecker(args)
-        args_checker.addStringChecker(name="filename", is_req=True)
-        args_checker.addStringChecker(name="filedata", is_req=True)
-        args_checker.addStringChecker(name="classify", is_req=True)
-        args_checker.addNumerChecker(name="contract_id", is_req=True, range=(0, None))
-        args_checker.addStringChecker(name="note", is_req=False)
+
+        filename = args_checker.addStringChecker(name="filename", is_req=True)
+        filedata = args_checker.addStringChecker(name="filedata", is_req=True)
+        contract_id = args_checker.addNumerChecker(name="contract_id", is_req=True, range=(0, None))
+        bill_number = args_checker.addStringChecker(name="bill_number", is_req=True)  # 凭证号
+        datetime = args_checker.addNumerChecker(name="datetime", is_req=True, range=(0, None))
+        abstract = args_checker.addStringChecker(name="abstract", is_req=False)  # 摘要
+        payment_amount = args_checker.addNumerChecker(name="payment_amount", is_req=True, range=(0, None))  # 付款金额（元）
+        not_settlement_amount = args_checker.addNumerChecker(name="not_settlement_amount", is_req=False, range=(0, None)) # 未结算金额（元）
+        bill_amount = args_checker.addNumerChecker(name="bill_amount", is_req=False, range=(0, None))   # 提供票据金额（元）
+        receipt_amount = args_checker.addNumerChecker(name="receipt_amount", is_req=False, range=(0, None))  # 提供发票金额（元）
+        payment_bank_and_type = args_checker.addStringChecker(name="payment_bank_and_type", is_req=True)  # 付款银行及方式
+        note = args_checker.addStringChecker(name="note", is_req=False)
         successed, message = args_checker.checkResult()
 
         if not successed:
             return buildStandResponse(StateCode_InvaildParam, message)
 
-        filename = args["filename"]
-        filedata = args["filedata"]
-        classify = args["classify"]
-        contract_id = args["contract_id"]
-
-        dir = os.path.join(FILE_RESTORE_ROOT_DIR,str(contract_id), classify)
+        child_path = os.path.join(contractNameByID(contract_id), str(bill_number))
+        dir = os.path.join(FILE_RESTORE_ROOT_DIR, child_path)
         if not os.path.exists(dir):
             os.makedirs(dir)
-        fullpath = os.path.join(dir, filename)
+        child_path = os.path.join(child_path, filename)
+        fullpath = os.path.join(FILE_RESTORE_ROOT_DIR, child_path)
 
         if os.path.exists(fullpath):
             return buildStandResponse(StateCode_FileExist)
@@ -670,10 +725,26 @@ def doUpload(request, args=None):
                 if filesize > 0:
                     params = {}
                     params["contract_id"] = contract_id
-                    params["classify"] = classify
-                    params["name"] = filename
-                    if "note" in args.keys():
-                        params["note"] = args["note"]
+                    params["bill_number"] = bill_number
+                    params["datetime"] = datetime
+                    if abstract is not None:
+                        params["abstract"] = abstract
+                    params["payment_amount"] = payment_amount
+
+                    if not_settlement_amount is not None:
+                        params["not_settlement_amount"] = not_settlement_amount
+
+                    if bill_amount is not None:
+                        params["bill_amount"] = bill_amount
+
+                    if receipt_amount is not None:
+                        params["receipt_amount"] = receipt_amount
+
+                    params["payment_bank_and_type"] = payment_bank_and_type
+                    params["bill_file_path"] = child_path
+                    if note is not None:
+                        params["note"] = note
+
                     size = addOrRecord(ContractDB.session(), File(**params))
                     if size > 0:
                         return buildStandResponse(StateCode_Success, {})

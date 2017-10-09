@@ -39,8 +39,6 @@ def role_list():
     return getRoleList(request, None)
 
 
-# 修改用户权限
-
 # 获取项目列表
 @app.route('/api/project/list', methods=["POST"])
 def project_list():
@@ -83,10 +81,32 @@ def create_company():
 def create_bill():
     return doBillCreate(request, None)
 
+'''
 # 上传文件
 @app.route('/api/contract/upload', methods=["POST"])
 def upload():
     return doUpload(request, None)
+'''
+
+# 获取行业列表
+@app.route('/api/trade/list', methods=["POST"])
+def trade_list():
+    return getTradeList(request, None)
+
+# 获取建筑性质列表
+@app.route('/api/buildtype/list', methods=["POST"])
+def buildtype_list():
+    return getBuildTypeList(request, None)
+
+# 获取资金来源类型列表
+@app.route('/api/moneytype/list', methods=["POST"])
+def moneytype_list():
+    return getMoneyTypeList(request, None)
+
+# 上传合同票据信息
+@app.route('/api/bill/upload', methods=["POST"])
+def bill_upload():
+    return uploadBill(request, None)
 
 # 增加项目审批请求
 #@app.route('/api/project/ask_approve/create', methods=["POST"])
