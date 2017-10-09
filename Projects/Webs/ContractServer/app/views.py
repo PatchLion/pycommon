@@ -75,12 +75,12 @@ def get_companies():
 @app.route('/api/companies/create', methods=["POST"])
 def create_company():
     return doCompanyCreate(request, None)
-
+'''
 # 创建公司
 @app.route('/api/contract/bill/create', methods=["POST"])
 def create_bill():
     return doBillCreate(request, None)
-
+'''
 '''
 # 上传文件
 @app.route('/api/contract/upload', methods=["POST"])

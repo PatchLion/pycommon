@@ -805,6 +805,7 @@ def billFromRecord(record):
     res["bill_file_path"] = record.bill_file_path
     res["note"] = record.note
     return res
+'''
 @doResponse
 def doBillCreate(request, args=None):
     if args is not None:
@@ -836,3 +837,4 @@ def doBillCreate(request, args=None):
                 return buildStandResponse(StateCode_FailedToCreateContractBill)
         else:
             return buildStandResponse(StateCode_CompanyExist)
+'''
