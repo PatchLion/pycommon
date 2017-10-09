@@ -756,6 +756,7 @@ def uploadBill(request, args=None):
                 else:
                     return buildStandResponse(StateCode_FailedToCreateFile)
         except Exception as e:
+            print(e)
             return buildStandResponse(StateCode_FailedToCreateFile)
 
 
