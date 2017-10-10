@@ -39,10 +39,17 @@ def user_list():
 def role_create():
     return doCreateRole(request, None)
 
-# 添加角色
+# 修改角色权限
 @app.route('/api/role/modify', methods=["POST"])
 def role_modify():
     return doRoleModify(request, None)
+
+
+# 删除角色
+@app.route('/api/role/remove', methods=["POST"])
+def role_remove():
+    return doRoleRemove(request, None)
+
 
 # 获取角色列表
 @app.route('/api/role/list', methods=["POST"])

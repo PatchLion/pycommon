@@ -567,6 +567,28 @@ def doRoleModify(request, args=None):
         else:
             return buildStandResponse(StateCode_RoleNotExist)
 
+@doResponse
+def doRoleRemove(request, args=None):
+    if args is not None:
+        args_checker = ArgsChecker(args)
+        id = args_checker.addStringChecker(name="id", is_req=True)
+        successed, message = args_checker.checkResult()
+
+        if not successed:
+            return buildStandResponse(StateCode_InvaildParam, message)
+
+        objs = records(ContractDB.session(), Role, Role.id == id)
+        if len(objs) > 0:
+            size = removeRecords(ContractDB.session(), Role, Role.id == id)
+            if size > 0:
+                #移除权限表数据
+                size = removeRecords(ContractDB.session(), RoleAuth, RoleAuth.role_id == id)
+                return buildStandResponse(StateCode_Success, {})
+            else:
+                return buildStandResponse(StateCode_FailedToRemoveRole)
+        else:
+            return buildStandResponse(StateCode_RoleNotExist)
+
 '''
 @doResponse
 def doAskApproveCreate(request, args=None):
