@@ -58,6 +58,7 @@ class Role(TableBase):
 
     id = Column(INTEGER(), primary_key=True, autoincrement=True)  #id
     name = Column(String(256), unique=True, nullable=False) #角色名称
+    note = Column(String(256), nullable=True) #角色描述
 
 #角色权限表
 class RoleAuth(TableBase):
@@ -67,7 +68,7 @@ class RoleAuth(TableBase):
     role_id = Column(INTEGER(), nullable=False) #角色id
     auth = Column(INTEGER(), nullable=False) #权限
 
-
+'''
 #用户权限表
 class UserAuth(TableBase):
     __tablename__ = "UserAuth"
@@ -75,7 +76,7 @@ class UserAuth(TableBase):
     id = Column(INTEGER(), primary_key=True, autoincrement=True)  #id
     user_id = Column(INTEGER(), nullable=False) #用户id
     auth = Column(INTEGER(), nullable=False) #权限
-
+'''
 
 #公司表
 class Company(TableBase):

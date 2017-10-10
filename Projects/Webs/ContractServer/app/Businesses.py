@@ -71,6 +71,29 @@ def doRegister(request, args=None):
             else:
                 return buildStandResponse(StateCode_FailedCreateUser)
 
+@doResponse
+def removeUser(request, args=None):
+    if args is not None:
+        args_checker = ArgsChecker(args)
+        user_name = args_checker.addStringChecker(name="user_name", is_req=True)
+        successed, message = args_checker.checkResult()
+
+        if not successed:
+            return buildStandResponse(StateCode_InvaildParam, message)
+
+        objs = records(ContractDB.session(), User, User.user_name == user_name)
+        if len(objs) == 0:
+            return buildStandResponse(StateCode_UserNotExist)
+        else:
+            size = removeRecords(ContractDB.session(), User, User.user_name == user_name)
+            if size == 0:
+                return buildStandResponse(StateCode_FaildToRemoveUser)
+
+            #移除用户权限信息
+            #size = removeRecords(ContractDB.session(), UserAuth, UserAuth.user_name == user_name)
+
+            return buildStandResponse(StateCode_Success, {})
+
 #获取角色的授权
 def authByRoleID(id):
     auths = []
@@ -79,6 +102,7 @@ def authByRoleID(id):
         auths = [auth.auth for auth in exist_auths]
     return auths
 
+'''
 #获取用户的授权
 def authByUserID(id):
     auths = []
@@ -86,6 +110,7 @@ def authByUserID(id):
         exist_auths = records(ContractDB.session(), UserAuth, UserAuth.user_id == id)
         auths = [auth.auth for auth in exist_auths]
     return auths
+'''
 
 #获取公司名称
 def companyByID(id):
@@ -120,7 +145,7 @@ def userFromRecord(record):
     returndata["nick_name"] = record.nick_name
     returndata["role_id"] = record.role_id
     returndata["role_name"] = roleNameByID(record.role_id)
-    returndata["auths"] = authByUserID(record.id) + authByRoleID(record.role_id)
+    returndata["auths"] = authByRoleID(record.role_id)
     returndata["company_id"] = record.company_id
     returndata["company_name"] = companyByID(record.company_id)
     return returndata
@@ -182,11 +207,13 @@ def doUserModify(request, args=None):
                 if company_id is not None:
                     existuser.company_id = company_id
                     res["company_id"] = True
+                    '''
                 if auths is not None:
                     removeRecords(ContractDB.session(), UserAuth, UserAuth.user_id==existuser.id)
                     auth_records = [UserAuth(user_id=existuser.id, auth=auth) for auth in auths]
                     size = addOrRecord(ContractDB.session(), auth_records)
                     res["auths"] = (size > 0)
+                    '''
                 if password is not None:
                     existuser.password = stringMD5(password)
 
@@ -464,10 +491,18 @@ def getProjectList(request, args=None):
             project_json["projects"].append(temp)
         return buildStandResponse(StateCode_Success, project_json)
 
+def roleAuthByID(id):
+    res = []
+    objs = records(ContractDB.session(), RoleAuth, RoleAuth.role_id ==id)
+    res = [obj.auth for obj in objs]
+    return res
+
 def roleFromRecord(record):
     res = {}
     res["id"] = record.id
     res["name"] = record.name
+    res["auths"] = roleAuthByID(record.id)
+    res["note"] = record.note
     return res
 
 @doResponse
@@ -475,6 +510,8 @@ def doCreateRole(request, args=None):
     if args is not None:
         args_checker = ArgsChecker(args)
         name = args_checker.addStringChecker(name="name", is_req=True)
+        auths = args_checker.addArrayChecker(name="auths", is_req=True, value_range=AuthNames.keys())
+        note = args_checker.addStringChecker(name="note", is_req=False)
         successed, message = args_checker.checkResult()
 
         if not successed:
@@ -482,9 +519,20 @@ def doCreateRole(request, args=None):
 
         objs = records(ContractDB.session(), Role, Role.name == name)
         if len(objs) == 0:
-            addOrRecord(ContractDB.session(), Role(name=name))
+            #添加角色
+            params = {}
+            params["name"] = name
+            if note is not None:
+                params["note"] = note
+            addOrRecord(ContractDB.session(), Role(**params))
             objs = records(ContractDB.session(), Role, Role.name==name)
             if len(objs) > 0:
+                #添加角色权限
+                removeRecords(ContractDB.session(), RoleAuth, RoleAuth.role_id == objs[0].id)
+                auth_records = [RoleAuth(role_id=objs[0].id,auth=temp) for temp in auths]
+                if len(auth_records) > 0:
+                    addOrRecord(ContractDB.session(), auth_records)
+
                 res_json = roleFromRecord(objs[0])
                 return buildStandResponse(StateCode_Success, res_json)
             else:
@@ -650,6 +698,25 @@ def getMoneyTypeList(request, args=None):
             temp = moneyTypeFromRecord(obj)
             res_json["moneytypes"].append(temp)
         return buildStandResponse(StateCode_Success, res_json)
+
+@doResponse
+def getBillList(request, args=None):
+    if args is not None:
+        args_checker = ArgsChecker(args)
+        contract_id = args_checker.addNumerChecker(name="contract_id", is_req=True, range=(0, None))
+        successed, message = args_checker.checkResult()
+
+        if not successed:
+            return buildStandResponse(StateCode_InvaildParam, message)
+
+        objects = records(ContractDB.session(), ContractBill, ContractBill.contract_id == contract_id)
+        res_json = {}
+        res_json["bills"] = []
+        for obj in objects:
+            temp = billFromRecord(obj)
+            res_json["bills"].append(temp)
+        return buildStandResponse(StateCode_Success, res_json)
+
 @doResponse
 def getContractList(request, args=None):
     if args is not None:

@@ -19,8 +19,9 @@ class ApiTest(unittest.TestCase):
         api = "/api/role/create"
         removeRecords(ContractDB.session(), Role)
         get(api, {"name": "role_a"}, self.assertEquals, [405])
-        post(api, {"name": "role_b"}, self.assertEquals, [200, StateCode_Success])
-        post(api, {"name": "role_b"}, self.assertEquals, [200, StateCode_RoleExist])
+        post(api, {"name": "role_b"}, self.assertEquals, [200, StateCode_InvaildParam])
+        post(api, {"name": "role_b", "auths": [1,3]}, self.assertEquals, [200, StateCode_Success])
+        post(api, {"name": "role_b", "auths": [1,3]}, self.assertEquals, [200, StateCode_RoleExist])
         post(api, {}, self.assertEquals, [200, StateCode_InvaildParam])
 
 

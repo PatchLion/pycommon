@@ -44,3 +44,4 @@ def removeRecords(session, t, conds = None):
         size = session.query(t).filter(conds).delete(synchronize_session=False)
     session.commit()
     print("Total {0} record removed! [{1}]".format(size, type(t)))
+    return  size

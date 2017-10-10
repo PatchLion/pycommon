@@ -13,6 +13,12 @@ def index():
 def regist():
     return doRegister(request, None)
 
+
+# 删除用户
+@app.route('/api/user/remove', methods=["POST"])
+def remove_user():
+    return removeUser(request, None)
+
 # 登录
 @app.route('/api/user/login', methods=["POST"])
 def login():
@@ -108,7 +114,14 @@ def moneytype_list():
 def bill_upload():
     return uploadBill(request, None)
 
-# 增加项目审批请求
+#获取合同票据列表
+@app.route('/api/bill/list', methods=["POST"])
+def bill_list():
+    return getBillList(request, None)
+
+
+
+        # 增加项目审批请求
 #@app.route('/api/project/ask_approve/create', methods=["POST"])
 #def ask_approve_create():
     #return doAskApproveCreate(request, None)
