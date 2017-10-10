@@ -77,6 +77,11 @@ def contract_create():
 def contract_list():
     return getContractList(request, None)
 
+# 修改合同信息
+@app.route('/api/contract/modify', methods=["POST"])
+def contract_modify():
+    return doContractModify(request, None)
+
 '''
 # 增加合同执行记录
 @app.route('/api/contract/history/create', methods=["POST"])

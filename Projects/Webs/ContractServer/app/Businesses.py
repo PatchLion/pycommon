@@ -805,6 +805,34 @@ def getContractList(request, args=None):
         return buildStandResponse(StateCode_Success, res_json)
 
 @doResponse
+def doContractModify(request, args=None):
+    if args is not None:
+        args_checker = ArgsChecker(args)
+        id = args_checker.addNumerChecker(name="id", is_req=True, range=(0, None))
+        progress = args_checker.addNumerChecker(name="progress", is_req=False, range=(0, 100))
+        successed, message = args_checker.checkResult()
+
+        if not successed:
+            return buildStandResponse(StateCode_InvaildParam, message)
+
+        objs = records(ContractDB.session(), Contract, Contract.id == id)
+
+        if len(objs) == 0:
+            return buildStandResponse(StateCode_ContractNotExist)
+        else:
+            contract = objs[0]
+            res = {}
+            if progress is not None:
+                contract.progress = progress
+                res["progress"] = True
+
+            size = addOrRecord(ContractDB.session(), progress)
+            if size == 0:
+                return buildStandResponse(StateCode_FailedToModifyContract)
+            else:
+                return buildStandResponse(StateCode_Success, res)
+
+@doResponse
 def uploadBill(request, args=None):
     if args is not None:
         args_checker = ArgsChecker(args)

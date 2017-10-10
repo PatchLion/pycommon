@@ -32,6 +32,7 @@ StateCode_FaildToRemoveUser = 1028
 StateCode_RoleNotExist = 1029
 StateCode_FailedToModifyRoleAuths = 1030
 StateCode_FailedToRemoveRole = 1031
+StateCode_FailedToModifyContract = 1032
 
 StateCodeDescriptions = {
 StateCode_Success : "成功",
@@ -66,7 +67,8 @@ StateCode_ContractBillExist: "合同票据已存在",
 StateCode_FaildToRemoveUser: "移除用户失败",
 StateCode_RoleNotExist: "角色不存在",
 StateCode_FailedToModifyRoleAuths: "修改角色权限失败",
-StateCode_FailedToRemoveRole: "移除角色失败"
+StateCode_FailedToRemoveRole: "移除角色失败",
+StateCode_FailedToModifyContract: "修改合同信息失败"
 }
 
 
