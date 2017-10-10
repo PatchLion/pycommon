@@ -58,7 +58,7 @@ class Role(TableBase):
 
     id = Column(INTEGER(), primary_key=True, autoincrement=True)  #id
     name = Column(String(256), unique=True, nullable=False) #角色名称
-    note = Column(String(256), nullable=True) #角色描述
+    note = Column(String(256), nullable=True, default="") #角色描述
 
 #角色权限表
 class RoleAuth(TableBase):
