@@ -131,7 +131,7 @@ def usernick_nameByID(id):
 #获取角色名称
 def roleNameByID(id):
     if id > -1:
-        roles = records(ContractDB.session(), Role, Role.id)
+        roles = records(ContractDB.session(), Role, Role.id == id)
         if len(roles) > 0:
             return roles[0].name
 
