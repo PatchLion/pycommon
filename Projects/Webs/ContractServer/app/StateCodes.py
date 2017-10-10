@@ -29,6 +29,8 @@ StateCode_FailedToSetProjectApprove = 1025
 StateCode_FailedToCreateContractBill = 1026
 StateCode_ContractBillExist = 1027
 StateCode_FaildToRemoveUser = 1028
+StateCode_RoleNotExist = 1029
+StateCode_FailedToModifyRoleAuths = 1030
 
 StateCodeDescriptions = {
 StateCode_Success : "成功",
@@ -60,7 +62,9 @@ StateCode_ProjectAskApproveNotExist: "项目审批请求不存在",
 StateCode_FailedToSetProjectApprove: "设置项目审批状态失败",
 StateCode_FailedToCreateContractBill: "创建合同票据失败",
 StateCode_ContractBillExist: "合同票据已存在",
-StateCode_FaildToRemoveUser: "移除用户失败"
+StateCode_FaildToRemoveUser: "移除用户失败",
+StateCode_RoleNotExist: "角色不存在",
+StateCode_FailedToModifyRoleAuths: "修改角色权限失败",
 }
 
 

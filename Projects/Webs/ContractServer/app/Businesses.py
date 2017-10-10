@@ -540,6 +540,33 @@ def doCreateRole(request, args=None):
         else:
             return buildStandResponse(StateCode_RoleExist)
 
+@doResponse
+def doRoleModify(request, args=None):
+    if args is not None:
+        args_checker = ArgsChecker(args)
+        id = args_checker.addStringChecker(name="id", is_req=True)
+        auths = args_checker.addArrayChecker(name="auths", is_req=True, value_range=AuthNames.keys())
+        successed, message = args_checker.checkResult()
+
+        if not successed:
+            return buildStandResponse(StateCode_InvaildParam, message)
+
+        objs = records(ContractDB.session(), Role, Role.id == id)
+        if len(objs) > 0:
+            removeRecords(ContractDB.session(), RoleAuth, RoleAuth.role_id == id)
+            auth_records = [RoleAuth(role_id=objs[0].id,auth=temp) for temp in auths]
+            if len(auth_records) > 0:
+                size = addOrRecord(ContractDB.session(), auth_records)
+                if (size != len(auth_records)):
+                    removeRecords(ContractDB.session(), RoleAuth, RoleAuth.role_id == id)
+                    return buildStandResponse(StateCode_FailedToModifyRoleAuths)
+                else:
+                    return buildStandResponse(StateCode_Success, {})
+            else:
+                return buildStandResponse(StateCode_FailedToModifyRoleAuths)
+        else:
+            return buildStandResponse(StateCode_RoleNotExist)
+
 '''
 @doResponse
 def doAskApproveCreate(request, args=None):
