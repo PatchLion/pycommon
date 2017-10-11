@@ -3,4 +3,3 @@
 
 from flask import Flask
 app = Flask(__name__)
-from Projects.Webs.ContractServer.app import views

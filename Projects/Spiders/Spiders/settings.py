@@ -11,7 +11,7 @@
 import sys,os
 sys.path.insert(0, os.path.split(__file__)[0] + './../../..')
 
-import MyCommons
+import Commons
 
 BOT_NAME = 'Spiders'
 
@@ -21,7 +21,7 @@ NEWSPIDER_MODULE = 'Spiders.spiders'
 PICTURE_DBFILE_NAME = "pictures.db"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = MyCommons.randomUserAgent()
+USER_AGENT = Commons.randomUserAgent()
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True

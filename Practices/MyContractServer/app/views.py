@@ -1,7 +1,7 @@
 ﻿from flask import request
 
-from Projects.Webs.ContractServer.app import app
-from Projects.Webs.ContractServer.app.Businesses import *
+from Practices.MyContractServer import app
+
 
 @app.route('/')
 @app.route('/index')

@@ -2,7 +2,7 @@
 from selenium import webdriver
 from scrapy.http import HtmlResponse
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-import MyCommons
+import Commons
 import time
 
 class PhantomJSMiddleware(object):
@@ -11,7 +11,7 @@ class PhantomJSMiddleware(object):
         if 'PhantomJS' in request.meta.keys():
             dcap = dict(DesiredCapabilities.PHANTOMJS)
             # 创建UA头
-            dcap["phantomjs.page.settings.userAgent"] = (MyCommons.randomUserAgent())
+            dcap["phantomjs.page.settings.userAgent"] = (Commons.randomUserAgent())
             driver = webdriver.PhantomJS(desired_capabilities=dcap)
             driver.implicitly_wait(60)
             driver.set_page_load_timeout(60)

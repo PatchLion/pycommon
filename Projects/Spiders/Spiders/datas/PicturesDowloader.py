@@ -4,7 +4,7 @@
 import asyncio
 import threading, time
 import requests, os
-from MyCommons import *
+from Commons import *
 from Projects.Spiders.Spiders.datas.PicturesSession import allImageFromDB
 
 IMAGE_DIR = os.path.split(__file__)[0] + "/../images"

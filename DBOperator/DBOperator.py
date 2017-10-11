@@ -1,6 +1,3 @@
-from sqlalchemy import *
-from MySqlAlchemy.EngineCreator import *
-
 '''查询记录'''
 def records(session, type, cond = None):
     if cond is None or cond is "":

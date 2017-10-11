@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from Projects.Webs.ContractServer.settings import *
-from Projects.Webs.ContractServer.database import TableBase
-from sqlalchemy.orm import sessionmaker
+from Projects.Webs.MyContractServer.app.Functions import currentTimeStamp
+from Projects.Webs.MyContractServer.app.StateCodes import *
+from Projects.Webs.MyContractServer.database import TableBase
+from sqlalchemy import Column, String, INTEGER, Float, BOOLEAN
 from sqlalchemy import create_engine
-from sqlalchemy import Column, String, INTEGER, ForeignKey, Float, BOOLEAN
-from Projects.Webs.ContractServer.app.Functions import currentTimeStamp
-from Projects.Webs.ContractServer.app.StateCodes import *
+from sqlalchemy.orm import sessionmaker
+
+from Practices.MyContractServer.settings import *
 
 
 class ContractDB(object):

@@ -1,7 +1,7 @@
-from Projects.Webs.ContractServer.database.ContractDatabase import *
-from Projects.Webs.ContractServer.app.Functions import stringMD5, createUuid
-from MySqlAlchemy.DBOperator import *
+from Projects.Webs.MyContractServer.database.ContractDatabase import *
 
+from DBOperator.DBOperator import *
+from Practices.MyContractServer.app.Functions import stringMD5, createUuid
 
 ContractDB.initTables()
 

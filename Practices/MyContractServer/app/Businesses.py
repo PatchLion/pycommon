@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json
-#from flask import request
-from json.decoder import *
-from Projects.Webs.ContractServer.app.ArgsChecker import *
-from Projects.Webs.ContractServer.settings import *
-from Projects.Webs.ContractServer.app.Functions import *
-from Projects.Webs.ContractServer.app.StateCodes import *
-from Projects.Webs.ContractServer.app.RoleCode import *
-from Projects.Webs.ContractServer.database.ContractDatabase import *
-from MySqlAlchemy.DBOperator import *
 import base64
+# from flask import request
+from json.decoder import *
+
+from Projects.Webs.MyContractServer.app.ArgsChecker import *
+from Projects.Webs.MyContractServer.app.RoleCode import *
+from Projects.Webs.MyContractServer.database.ContractDatabase import *
+
+from DBOperator.DBOperator import *
+from Practices.MyContractServer.app.Functions import *
+
 
 #args不为None时，证明已经通过参数验证, 外部调用请勿传args
 def doResponse(func):

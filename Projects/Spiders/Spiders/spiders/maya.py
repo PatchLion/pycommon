@@ -2,7 +2,7 @@
 import scrapy, os, json, time
 from scrapy import Selector
 from scrapy import Request
-import MyCommons
+import Commons
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from Projects.Spiders.Spiders.datas.PicturesTables import *
@@ -36,7 +36,7 @@ class MayaSpider(scrapy.Spider):
     def login(self):
         dcap = dict(DesiredCapabilities.PHANTOMJS)
         # 创建UA头
-        dcap["phantomjs.page.settings.userAgent"] = (MyCommons.randomUserAgent())
+        dcap["phantomjs.page.settings.userAgent"] = (Commons.randomUserAgent())
         mywebdriver = webdriver.PhantomJS(desired_capabilities=dcap)
         mywebdriver.implicitly_wait(60)
         mywebdriver.set_page_load_timeout(60)
