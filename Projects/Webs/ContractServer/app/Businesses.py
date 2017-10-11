@@ -826,7 +826,7 @@ def doContractModify(request, args=None):
                 contract.progress = progress
                 res["progress"] = True
 
-            size = addOrRecord(ContractDB.session(), progress)
+            size = addOrRecord(ContractDB.session(), contract)
             if size == 0:
                 return buildStandResponse(StateCode_FailedToModifyContract)
             else:
