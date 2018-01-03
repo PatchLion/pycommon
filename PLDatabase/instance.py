@@ -22,8 +22,9 @@ class DBInstance(object):
 
     @classmethod
     def connectionString(cls):
-        configs = json.loads("configs.json", encoding="utf-8")
-        return configs.get("Connection", "")
+        connection = json.loads("configs.json", encoding="utf-8").get("Connection", "")
+        DBInstance.logger.warn("Connection String:"+connection)
+        return connection
 
     @classmethod
     def engine(cls):
