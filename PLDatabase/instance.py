@@ -23,13 +23,13 @@ class DBInstance(object):
     @classmethod
     def connectionString(cls):
         connection = json.loads("configs.json", encoding="utf-8").get("Connection", "")
-        DBInstance.logger.warn("Connection String:"+connection)
+        #DBInstance.logger.warn("Connection String:"+connection)
         return connection
 
     @classmethod
     def engine(cls):
         if cls.contract_engine is None:
-            DBInstance.logger.debug("Database engine init......")
+            DBInstance.logger.debug("Database engine init: " + DBInstance.connectionString())
             cls.contract_engine = create_engine(DBInstance.connectionString(), echo=True)
         return cls.contract_engine
 
