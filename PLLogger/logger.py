@@ -18,7 +18,7 @@ def buildLogger(logger, path="logs", level=logging.WARNING):
         os.makedirs(path)
 
     # 文件名称
-    filename = time.strftime("%Y%m%d%H%M%S.log", time.localtime())
+    filename = time.strftime("%Y%m%d.log", time.localtime())
 
     # 设置handler
     file_handler = logging.FileHandler(os.path.join(path, filename))
