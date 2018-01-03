@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json
+import json, os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -22,8 +22,12 @@ class DBInstance(object):
 
     @classmethod
     def connectionString(cls):
-        connection = json.loads("configs.json", encoding="utf-8").get("Connection", "")
-        #DBInstance.logger.warn("Connection String:"+connection)
+        connection = ""
+        try:
+            with open(os.path.dirname(__file__) + "/configs.json", "r") as f:
+                connection = json.load(f, encoding="utf-8").get("Connection", "")
+        except Exception as e:
+            DBInstance.logger.warn(e)
         return connection
 
     @classmethod
