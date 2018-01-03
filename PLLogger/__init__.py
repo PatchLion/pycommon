@@ -1,1 +1,1 @@
-from .logger import createLogger
+from .logger import createLogger, buildLogger
