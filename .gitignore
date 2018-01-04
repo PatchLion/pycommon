@@ -120,3 +120,7 @@ temp/
 
 #
 Contract-Files/
+
+#
+__pycache__/
+.DS_Store
