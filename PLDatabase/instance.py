@@ -23,9 +23,10 @@ class DBInstance(object):
 
     @classmethod
     def resetConnection(cls, connection):
+        DBInstance.logger.debug("设置连接字符串:"+connection)
         cls.connection_string = connection
-        contract_session = None
-        contract_engine = None
+        cls.contract_session = None
+        cls.contract_engine = None
 
     @classmethod
     def engine(cls):
