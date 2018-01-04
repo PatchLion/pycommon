@@ -13,58 +13,56 @@ TableBase = declarative_base()
 # oracle: oracle://apps:apps@10.0.0.100:1522/VID
 # mysql: mysql://root:root@localhost:3306/new_db?charset=utf8
 # sqlite: sqlite:///test.db
-# mssql: mssql+pymssql://sa:123456@localhost:1433/test
+# mssql: mssql+pymssql://sa:Root123456@127.0.0.1:2796/BZQLYKT?charset=utf8
 
 class DBInstance(object):
     contract_session = None
     contract_engine = None
+    connection_string = ""
     logger = createLogger("datebase")
 
     @classmethod
-    def connectionString(cls):
-        connection = ""
-        try:
-            with open(os.path.dirname(__file__) + "/configs.json", "r") as f:
-                connection = json.load(f, encoding="utf-8").get("Connection", "")
-        except Exception as e:
-            DBInstance.logger.warn(e)
-        return connection
+    def resetConnection(cls, connection):
+        DBInstance.logger.debug("设置连接字符串:"+connection)
+        cls.connection_string = connection
+        cls.contract_session = None
+        cls.contract_engine = None
 
     @classmethod
     def engine(cls):
         if cls.contract_engine is None:
-            DBInstance.logger.debug("Database engine init: " + DBInstance.connectionString())
-            cls.contract_engine = create_engine(DBInstance.connectionString(), echo=True)
+            cls.logger.debug("Database engine init: " + cls.connection_string)
+            cls.contract_engine = create_engine(cls.connection_string, echo=True)
         return cls.contract_engine
 
     @classmethod
     def session(cls):
         if cls.contract_session is None:
-            DBInstance.logger.debug("Database session init......")
+            cls.logger.debug("Database session init......")
             DBSession = sessionmaker(bind=cls.engine())
             cls.contract_session = DBSession()
         return cls.contract_session
 
     @classmethod
     def initTables(cls):
-        DBInstance.logger.debug("Init tables......")
+        cls.logger.debug("Init tables......")
         TableBase.metadata.create_all(bind=cls.engine())
-        DBInstance.logger.debug("Init tables finished!")
+        cls.logger.debug("Init tables finished!")
 
     @classmethod
     def dropTables(cls):
-        DBInstance.logger.debug("Drop tables......")
+        cls.logger.debug("Drop tables......")
         TableBase.metadata.drop_all(bind=cls.engine())
-        DBInstance.logger.debug("Drop tables finished!")
+        cls.logger.debug("Drop tables finished!")
 
     @classmethod
     def init_db(cls, engine):
-        DBInstance.logger.debug("init db!")
+        cls.logger.debug("init db!")
         TableBase.metadata.create_all(engine)
 
     @classmethod
     def drop_db(cls, engine):
-        DBInstance.logger.debug("drop db!")
+        cls.logger.debug("drop db!")
         TableBase.metadata.drop_all(engine)
 
     # 返回session, engine
@@ -86,7 +84,7 @@ class DBInstance(object):
                 rs = cls.session().query(type).filter(cond).all()
             return rs
         except Exception as e:
-            DBInstance.logger.warn("DBInstance.records:"+str(e))
+            cls.logger.warn("DBInstance.records:"+str(e))
             return []
 
     '''联合查询'''
@@ -95,7 +93,7 @@ class DBInstance(object):
         try:
             return cls.session().query(src_type, dest_type).filter(cond).all()
         except Exception as e:
-            DBInstance.logger.warn("DBInstance.unionRecords:"+str(e))
+            cls.logger.warn("DBInstance.unionRecords:"+str(e))
             return []
 
     '''记录数量'''
@@ -123,11 +121,11 @@ class DBInstance(object):
                 size = 1
             cls.session().commit()
         except Exception as e:
-            DBInstance.logger.warn("DBInstance.addOrRecord:"+e)
+            cls.logger.warn("DBInstance.addOrRecord:"+e)
             size = 0
             cls.session().rollback()
 
-        DBInstance.logger.debug("Total {0} record added or updated!".format(size))
+        cls.logger.debug("Total {0} record added or updated!".format(size))
         return size
 
     '''删除纪录'''
@@ -141,8 +139,8 @@ class DBInstance(object):
                 size = cls.session().query(t).filter(conds).delete(synchronize_session=False)
             cls.session().commit()
         except Exception as e:
-            DBInstance.logger.warn("DBInstance.removeRecords:" + str(e))
+            cls.logger.warn("DBInstance.removeRecords:" + str(e))
             size = 0
             cls.session().rollback()
-        DBInstance.logger.debug("Total {0} record removed! [{1}]".format(size, type(t)))
+        cls.logger.debug("Total {0} record removed! [{1}]".format(size, type(t)))
         return size
