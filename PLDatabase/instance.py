@@ -99,7 +99,7 @@ class DBInstance(object):
             # print("all finish")
             return rs
         except Exception as e:
-            cls.logger.warn("DBInstance.records:"+str(e))
+            cls.logger.warn("DBInstance.records: %s" % e)
             return []
 
     '''联合查询'''
@@ -108,7 +108,7 @@ class DBInstance(object):
         try:
             return cls.session().query(src_type, dest_type).filter(cond).all()
         except Exception as e:
-            cls.logger.warn("DBInstance.unionRecords:"+str(e))
+            cls.logger.warn("DBInstance.unionRecords: %s " % e)
             return []
 
     '''记录数量'''
@@ -136,7 +136,7 @@ class DBInstance(object):
                 size = 1
             cls.session().commit()
         except Exception as e:
-            cls.logger.warn("DBInstance.addOrRecord:"+e)
+            cls.logger.warn("DBInstance.addOrRecord: %s" % e)
             size = 0
             cls.session().rollback()
 
@@ -154,7 +154,7 @@ class DBInstance(object):
                 size = cls.session().query(t).filter(conds).delete(synchronize_session=False)
             cls.session().commit()
         except Exception as e:
-            cls.logger.warn("DBInstance.removeRecords:" + str(e))
+            cls.logger.warn("DBInstance.removeRecords: %s" % e)
             size = 0
             cls.session().rollback()
         cls.logger.debug("Total {0} record removed! [{1}]".format(size, type(t)))
