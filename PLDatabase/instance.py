@@ -118,7 +118,7 @@ class DBInstance(object):
 
     '''记录是否存在'''
     @classmethod
-    def isRecordExist(cls, type, cond):
+    def isRecordExist(cls, type, cond=None):
         return (0 != cls.recordsCount(type, cond))
 
     '''添加或更新记录'''
