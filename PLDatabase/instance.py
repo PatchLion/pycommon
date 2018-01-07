@@ -76,12 +76,23 @@ class DBInstance(object):
 
     '''查询记录'''
     @classmethod
-    def records(cls, type, cond=None):
+    def records(cls, type, cond=None, orderby=None):
         try:
-            if cond is None or cond is "":
-                rs = cls.session().query(type).all()
-            else:
-                rs = cls.session().query(type).filter(cond).all()
+            # DBLogger.logger().warn("Call records!")
+            query = DBInstance.session().query(type)
+
+            if cond is not None:
+                # print("cond-->", cond)
+                query = query.filter(cond)
+
+            if orderby is not None:
+                # print("orderby-->", orderby)
+                query = query.order_by(orderby)
+
+            # print("all")
+            rs = query.all()
+
+            # print("all finish")
             return rs
         except Exception as e:
             cls.logger.warn("DBInstance.records:"+str(e))
