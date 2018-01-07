@@ -36,7 +36,7 @@ class DBInstance(object):
     def engine(cls):
         if cls.contract_engine is None:
             cls.logger.debug("Database engine init: " + cls.connection_string)
-            cls.contract_engine = create_engine(cls.connection_string, echo=True)
+            cls.contract_engine = create_engine(cls.connection_string, echo=False)
         return cls.contract_engine
 
     @classmethod
