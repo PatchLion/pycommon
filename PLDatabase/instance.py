@@ -102,6 +102,19 @@ class DBInstance(object):
             cls.logger.warn("DBInstance.records: %s" % e)
             return []
 
+    '''更新记录'''
+    @classmethod
+    def updateRecords(cls, type, cond, value):
+        try:
+            size = cls.session().query(type).filter(cond).update(value)
+            print("update size--->", size)
+            cls.session().commit()
+            return size
+        except Exception as e:
+            cls.logger.warn("DBInstance.updateRecords: %s " % e)
+            return 0
+
+
     '''联合查询'''
     @classmethod
     def unionRecords(cls, src_type, dest_type, cond):
