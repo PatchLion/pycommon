@@ -3,7 +3,7 @@
 import os, logging, time
 
 #创建日志对象
-def createLogger(name="", path="logs", level=logging.DEBUG):
+def createLogger(name="", path="logs", level=logging.WARNING):
     #
     logger = logging.getLogger(name)
     logger.setLevel(level)
@@ -14,7 +14,7 @@ def createLogger(name="", path="logs", level=logging.DEBUG):
     return logger
 
 #设置logger
-def buildLogger(logger, path="logs", level=logging.DEBUG):
+def buildLogger(logger, path="logs", level=logging.WARNING):
 
     #print("2", id(logger))
 

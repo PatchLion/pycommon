@@ -25,6 +25,10 @@ class DBInstance(object):
     def resetConnection(cls, connection):
         DBInstance.logger.debug("设置连接字符串:"+connection)
         cls.connection_string = connection
+        cls.resetSession()
+
+    @classmethod
+    def resetSession(cls):
         cls.contract_session = None
         cls.contract_engine = None
 
@@ -32,7 +36,7 @@ class DBInstance(object):
     def engine(cls):
         if cls.contract_engine is None:
             cls.logger.debug("Database engine init: " + cls.connection_string)
-            cls.contract_engine = create_engine(cls.connection_string, echo=True)
+            cls.contract_engine = create_engine(cls.connection_string, echo=False)
         return cls.contract_engine
 
     @classmethod
@@ -76,15 +80,26 @@ class DBInstance(object):
 
     '''查询记录'''
     @classmethod
-    def records(cls, type, cond=None):
+    def records(cls, type, cond=None, orderby=None):
         try:
-            if cond is None or cond is "":
-                rs = cls.session().query(type).all()
-            else:
-                rs = cls.session().query(type).filter(cond).all()
+            # DBLogger.logger().warn("Call records!")
+            query = DBInstance.session().query(type)
+
+            if cond is not None:
+                # print("cond-->", cond)
+                query = query.filter(cond)
+
+            if orderby is not None:
+                # print("orderby-->", orderby)
+                query = query.order_by(orderby)
+
+            # print("all")
+            rs = query.all()
+
+            # print("all finish")
             return rs
         except Exception as e:
-            cls.logger.warn("DBInstance.records:"+str(e))
+            cls.logger.warn("DBInstance.records: %s" % e)
             return []
 
     '''联合查询'''
@@ -93,7 +108,7 @@ class DBInstance(object):
         try:
             return cls.session().query(src_type, dest_type).filter(cond).all()
         except Exception as e:
-            cls.logger.warn("DBInstance.unionRecords:"+str(e))
+            cls.logger.warn("DBInstance.unionRecords: %s " % e)
             return []
 
     '''记录数量'''
@@ -103,7 +118,7 @@ class DBInstance(object):
 
     '''记录是否存在'''
     @classmethod
-    def isRecordExist(cls, type, cond):
+    def isRecordExist(cls, type, cond=None):
         return (0 != cls.recordsCount(type, cond))
 
     '''添加或更新记录'''
@@ -121,7 +136,7 @@ class DBInstance(object):
                 size = 1
             cls.session().commit()
         except Exception as e:
-            cls.logger.warn("DBInstance.addOrRecord:"+e)
+            cls.logger.warn("DBInstance.addOrRecord: %s" % e)
             size = 0
             cls.session().rollback()
 
@@ -139,7 +154,7 @@ class DBInstance(object):
                 size = cls.session().query(t).filter(conds).delete(synchronize_session=False)
             cls.session().commit()
         except Exception as e:
-            cls.logger.warn("DBInstance.removeRecords:" + str(e))
+            cls.logger.warn("DBInstance.removeRecords: %s" % e)
             size = 0
             cls.session().rollback()
         cls.logger.debug("Total {0} record removed! [{1}]".format(size, type(t)))
