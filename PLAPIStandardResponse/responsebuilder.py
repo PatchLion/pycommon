@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+from enum import Enum
 
 class ApiResponseBuilder(object):
     errorStringFunc = None
@@ -9,7 +10,11 @@ class ApiResponseBuilder(object):
     @classmethod
     def build(cls, code, msgExt=None, data=None):
         response = {}
-        response["code"] = code
+        if isinstance(code, Enum):
+            response["code"] = code.value
+        else:
+            response["code"] = code
+
 
         if cls.errorStringFunc is not None:
             response["msg"] = cls.errorStringFunc(code)
