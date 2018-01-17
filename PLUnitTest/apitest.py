@@ -12,6 +12,14 @@ class ApiTest(unittest.TestCase):
         self.reset()
         unittest.TestCase.__init__(self, *args, **kwargs)
 
+    #成功数
+    def successCount(self):
+        return self._success
+
+    #失败数
+    def failedCount(self):
+        return self._failed
+
     # 重置成功失败个数
     def reset(self):
         self._success = 0
