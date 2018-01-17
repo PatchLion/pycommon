@@ -15,10 +15,11 @@ class ApiTest(unittest.TestCase):
         if param is not None:
             print("GET", url, "With", param)
             res = requests.get(url=url, params=param)
+            return self._resolve_response(res, testfunc, compares, "GET", str(param))
         else:
             print("GET", url)
             res = requests.get(url=url)
-        return self._resolve_response(res, testfunc, compares, "GET")
+            return self._resolve_response(res, testfunc, compares, "GET", "")
 
     def post(self, api, compares, testfunc=None, param=None):
         if testfunc is None:
@@ -28,12 +29,13 @@ class ApiTest(unittest.TestCase):
             data = json.dumps(param, ensure_ascii=False)
             print("POST", url, "With", data)
             res = requests.post(url=url, data=data.encode("utf-8"))
+            return self._resolve_response(res, testfunc, compares, "POST", str(param))
         else:
             print("POST", url)
             res = requests.post(url=url)
-        return self._resolve_response(res, testfunc, compares, "POST")
+            return self._resolve_response(res, testfunc, compares, "POST", "")
 
-    def _resolve_response(self, res, testfunc, compares, method):
+    def _resolve_response(self, res, testfunc, compares, method, param):
         ret = None
         if 200 != res.status_code:
             ret = res.status_code, -1, res.reason, None
@@ -49,6 +51,7 @@ class ApiTest(unittest.TestCase):
         print("--------------------Api test result-----------------------")
         print(ApiTest.titleString(" Api.url:") + " %s" % res.url)
         print(ApiTest.titleString(" Api.method:") + " %s" % method)
+        print(ApiTest.titleString(" Api.param:") + " %s" % param)
         print(ApiTest.titleString(" Network.code:") + " %d" % ret[0])
         print(ApiTest.titleString(" Response.code:") + " %d" % ret[1])
         print(ApiTest.titleString(" Response.msg:") + " %s" % ret[2])
@@ -97,4 +100,5 @@ if "__main__" == __name__:
     apitest = ApiTest()
     apitest.post(api="/classifies", compares=[200, 0])
     apitest.post(api="/cacheversion", testfunc=apitest.assertEquals, compares=[200, 0])
+    apitest.post(api="/cacheversion", param={"test": "test"}, testfunc=apitest.assertEquals, compares=[200, 0])
 
