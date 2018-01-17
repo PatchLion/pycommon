@@ -7,7 +7,7 @@ class ApiResponseBuilder(object):
     errorStringFunc = None
 
     @classmethod
-    def build(cls, code, msg=None, data=None):
+    def build(cls, code, msg=None, msgExt=None, data=None):
         response = {}
         response["code"] = code
         if msg is None:
@@ -15,6 +15,9 @@ class ApiResponseBuilder(object):
                 response["msg"] = cls.errorStringFunc(code)
             else:
                 response["msg"] = ""
+
+            if msgExt is not None:
+                response["msg"] = response[msg] + ("%s" % msgExt)
         else:
             response["msg"] = msg
         response["data"] = data
