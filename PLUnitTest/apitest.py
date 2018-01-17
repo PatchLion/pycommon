@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import requests, json, unittest, urllib
+import requests, json, unittest, urllib, time
 
 
 class ApiTest(unittest.TestCase):
@@ -26,28 +26,36 @@ class ApiTest(unittest.TestCase):
 
     def get(self, api, compares, testfunc=None, param=None):
         url = urllib.request.urljoin(ApiTest.HOST_URL, api)
+        param_string = ""
+        start = time.time()
         if param is not None:
             print("GET", url, "With", param)
+            param_string = str(param)
             res = requests.get(url=url, params=param)
-            return self._resolve_response(res, testfunc, compares, "GET", str(param))
         else:
             print("GET", url)
             res = requests.get(url=url)
-            return self._resolve_response(res, testfunc, compares, "GET", "")
+
+        usetime = time.time() - start
+        return self._resolve_response(res, testfunc, compares, "GET", param_string, usetime)
 
     def post(self, api, compares, testfunc=None, param=None):
         url = urllib.request.urljoin(ApiTest.HOST_URL, api)
+        param_string = ""
+        start = time.time()
         if param is not None:
             data = json.dumps(param, ensure_ascii=False)
             print("POST", url, "With", data)
+            param_string = str(param)
             res = requests.post(url=url, data=data.encode("utf-8"))
-            return self._resolve_response(res, testfunc, compares, "POST", str(param))
         else:
             print("POST", url)
             res = requests.post(url=url)
-            return self._resolve_response(res, testfunc, compares, "POST", "")
 
-    def _resolve_response(self, res, testfunc, compares, method, param):
+        usetime = time.time() - start
+        return self._resolve_response(res, testfunc, compares, "POST", param_string, usetime)
+
+    def _resolve_response(self, res, testfunc, compares, method, param, sec):
         if testfunc is None:
             testfunc = self.assertEquals
         ret = None
@@ -66,6 +74,7 @@ class ApiTest(unittest.TestCase):
         print(ApiTest.titleString(" Api.url:") + " %s" % res.url)
         print(ApiTest.titleString(" Api.method:") + " %s" % method)
         print(ApiTest.titleString(" Api.param:") + " %s" % param)
+        print(ApiTest.titleString(" Api.usetime:") + " %f(s)" % sec)
         print(ApiTest.titleString(" Network.code:") + " %d" % ret[0])
         print(ApiTest.titleString(" Response.code:") + " %d" % ret[1])
         print(ApiTest.titleString(" Response.msg:") + " %s" % ret[2])
@@ -114,7 +123,7 @@ if "__main__" == __name__:
     ApiTest.ECHOCOLOR_ENABEL = True
 
     apitest = ApiTest()
-    apitest.post(api="/classifies", compares=[200, 0])
-    apitest.post(api="/cacheversion", testfunc=apitest.assertEquals, compares=[200, 0])
-    apitest.post(api="/cacheversion", param={"test": "test"}, testfunc=apitest.assertEquals, compares=[200, 0])
+    apitest.post(api="/api/classifies", compares=[200, 0])
+    apitest.post(api="/api/cacheversion", testfunc=apitest.assertEquals, compares=[200, 0])
+    apitest.post(api="/api/cacheversion", param={"test": "test"}, testfunc=apitest.assertEquals, compares=[200, 0])
     apitest.printReport()
