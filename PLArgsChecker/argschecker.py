@@ -16,19 +16,13 @@ class ArgsChecker(object):
         print("ArgsChecker output_params = ", self._output_params)
         return self._output_params
 
-<<<<<<< HEAD
-=======
     #检测结果
->>>>>>> a4153bca36ba096b1bca1f958474061f961fba1b
     def checkResult(self):
         k,v = len(self._results) == 0, self._results
         print("args =", self._args, "\nCheck result =", k, v)
         return k,{"errors": v}
 
-<<<<<<< HEAD
-=======
     #添加bool类型检测
->>>>>>> a4153bca36ba096b1bca1f958474061f961fba1b
     def addBooleanChecker(self, name, is_req = False):
         exist_message = self.checkExist(key=name)
         if exist_message is not None:
@@ -43,10 +37,7 @@ class ArgsChecker(object):
                 self._output_params[name] = self._args[name]
                 return self._args[name]
 
-<<<<<<< HEAD
-=======
     # 添加字符串类型检测
->>>>>>> a4153bca36ba096b1bca1f958474061f961fba1b
     def addStringChecker(self, name, is_req = False):
         exist_message = self.checkExist(key=name)
         if exist_message is not None:
@@ -62,11 +53,7 @@ class ArgsChecker(object):
                 self._output_params[name] = self._args[name]
                 return self._args[name]
 
-<<<<<<< HEAD
-
-=======
     # 添加bytes类型检测
->>>>>>> a4153bca36ba096b1bca1f958474061f961fba1b
     def addBytesChecker(self, name, is_req = False):
         exist_message = self.checkExist(key=name)
         if exist_message is not None:
@@ -82,10 +69,7 @@ class ArgsChecker(object):
                 self._output_params[name] = self._args[name]
                 return self._args[name]
 
-<<<<<<< HEAD
-=======
     # 添加数值类型检测
->>>>>>> a4153bca36ba096b1bca1f958474061f961fba1b
     def addNumerChecker(self, name, is_req = False, range = (None, None)):
         exist_message = self.checkExist(key=name)
         if exist_message is not None:
@@ -101,11 +85,7 @@ class ArgsChecker(object):
                 self._output_params[name] = self._args[name]
                 return self._args[name]
 
-<<<<<<< HEAD
-
-=======
     # 添加字典类型检测
->>>>>>> a4153bca36ba096b1bca1f958474061f961fba1b
     def addDictChecker(self, name, is_req=False, keys = None):
         exist_message = self.checkExist(key=name)
         if exist_message is not None:
@@ -121,11 +101,7 @@ class ArgsChecker(object):
                 #print("1111", name, self.args[name])
                 return self._args[name]
 
-<<<<<<< HEAD
-
-=======
     # 添加数组类型检测
->>>>>>> a4153bca36ba096b1bca1f958474061f961fba1b
     def addArrayChecker(self, name, is_req=False, value_range = None):
         exist_message = self.checkExist(key=name)
         if exist_message is not None:
@@ -140,10 +116,7 @@ class ArgsChecker(object):
             else:
                 return self._args[name]
 
-<<<<<<< HEAD
-=======
     # 构建错误消息
->>>>>>> a4153bca36ba096b1bca1f958474061f961fba1b
     @classmethod
     def buildErrorMessage(cls, arg_name, messsage):
         return {"param": arg_name, "message": messsage}
