@@ -8,9 +8,23 @@ class ApiTest(unittest.TestCase):
     HOST_URL = "http://127.0.0.1:5000"
     ECHOCOLOR_ENABEL = False
 
+    def __init__(self, *args, **kwargs):
+        self.reset()
+        unittest.TestCase.__init__(self, *args, **kwargs)
+
+    # 重置成功失败个数
+    def reset(self):
+        self._success = 0
+        self._failed = 0
+
+    # 打印报告 自动重置成功失败个数
+    def printReport(self):
+        print("--------------测试结果---------------")
+        print(self.passString("成功: %d" % self._success), "      ", self.warningString("失败: %d" % self._failed))
+        self.reset()
+        print("------------------------------------")
+
     def get(self, api, compares, testfunc=None, param=None):
-        if testfunc is None:
-            testfunc = self.assertEquals
         url = urllib.request.urljoin(ApiTest.HOST_URL, api)
         if param is not None:
             print("GET", url, "With", param)
@@ -22,8 +36,6 @@ class ApiTest(unittest.TestCase):
             return self._resolve_response(res, testfunc, compares, "GET", "")
 
     def post(self, api, compares, testfunc=None, param=None):
-        if testfunc is None:
-            testfunc = self.assertEquals
         url = urllib.request.urljoin(ApiTest.HOST_URL, api)
         if param is not None:
             data = json.dumps(param, ensure_ascii=False)
@@ -36,6 +48,8 @@ class ApiTest(unittest.TestCase):
             return self._resolve_response(res, testfunc, compares, "POST", "")
 
     def _resolve_response(self, res, testfunc, compares, method, param):
+        if testfunc is None:
+            testfunc = self.assertEquals
         ret = None
         if 200 != res.status_code:
             ret = res.status_code, -1, res.reason, None
@@ -67,8 +81,10 @@ class ApiTest(unittest.TestCase):
             if len(compares) >= 2:
                 testfunc(ret[1], compares[1])  # 自定义api code
             print(ApiTest.passString("[Info] Pass"))
+            self._success = self._success+1
         except Exception as e:
             print(ApiTest.warningString("[Warning] Not Pass: %s" % e))
+            self._failed = self._failed+1
         print("\n")
 
     @classmethod
@@ -93,12 +109,12 @@ class ApiTest(unittest.TestCase):
             return string
 
 
-
 if "__main__" == __name__:
     ApiTest.HOST_URL = "http://www.patchlion.cn:5000"
+    ApiTest.ECHOCOLOR_ENABEL = True
 
     apitest = ApiTest()
     apitest.post(api="/classifies", compares=[200, 0])
     apitest.post(api="/cacheversion", testfunc=apitest.assertEquals, compares=[200, 0])
     apitest.post(api="/cacheversion", param={"test": "test"}, testfunc=apitest.assertEquals, compares=[200, 0])
-
+    apitest.printReport()
