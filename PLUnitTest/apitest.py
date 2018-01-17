@@ -6,7 +6,9 @@ import requests, json, unittest, urllib
 class ApiTest(unittest.TestCase):
     HOST_URL = "http://127.0.0.1:5000"
 
-    def get(self, api, testfunc, compares, param=None):
+    def get(self, api,  compares, testfunc=None, param=None):
+        if testfunc is None:
+            testfunc = self.assertEquals
         url = urllib.request.urljoin(ApiTest.HOST_URL, api)
         if param is not None:
             print("GET", url, "With", param)
@@ -16,7 +18,9 @@ class ApiTest(unittest.TestCase):
             res = requests.get(url=url)
         return ApiTest._resolve_response(res, testfunc, compares, "GET")
 
-    def post(self, api, testfunc, compares, param=None):
+    def post(self, api, compares, testfunc=None, param=None):
+        if testfunc is None:
+            testfunc = self.assertEquals
         url = urllib.request.urljoin(ApiTest.HOST_URL, api)
         if param is not None:
             data = json.dumps(param, ensure_ascii=False)
@@ -67,6 +71,6 @@ if "__main__" == __name__:
     ApiTest.HOST_URL = "http://www.patchlion.cn:5000"
 
     apitest = ApiTest()
-    apitest.post(api="/classifies", testfunc=apitest.assertEquals, compares=[200, 0])
+    apitest.post(api="/classifies", compares=[200, 0])
     apitest.post(api="/cacheversion", testfunc=apitest.assertEquals, compares=[200, 0])
 '''
