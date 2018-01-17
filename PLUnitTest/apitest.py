@@ -16,7 +16,7 @@ class ApiTest(unittest.TestCase):
         else:
             print("GET", url)
             res = requests.get(url=url)
-        return ApiTest._resolve_response(res, testfunc, compares, "GET")
+        return self._resolve_response(res, testfunc, compares, "GET")
 
     def post(self, api, compares, testfunc=None, param=None):
         if testfunc is None:
