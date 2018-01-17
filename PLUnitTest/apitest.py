@@ -28,32 +28,41 @@ class ApiTest(unittest.TestCase):
         url = urllib.request.urljoin(ApiTest.HOST_URL, api)
         param_string = ""
         start = time.time()
-        if param is not None:
-            print("GET", url, "With", param)
-            param_string = str(param)
-            res = requests.get(url=url, params=param)
-        else:
-            print("GET", url)
-            res = requests.get(url=url)
+        try:
+            if param is not None:
+                print("GET", url, "With", param)
+                param_string = str(param)
+                res = requests.get(url=url, params=param)
+            else:
+                print("GET", url)
+                res = requests.get(url=url)
 
-        usetime = time.time() - start
-        return self._resolve_response(res, testfunc, compares, "GET", param_string, usetime)
+                usetime = time.time() - start
+                return self._resolve_response(res, testfunc, compares, "GET", param_string, usetime)
+        except Exception as e:
+                print(e)
+                self._failed = self._failed + 1
 
     def post(self, api, compares, testfunc=None, param=None):
         url = urllib.request.urljoin(ApiTest.HOST_URL, api)
         param_string = ""
         start = time.time()
-        if param is not None:
-            data = json.dumps(param, ensure_ascii=False)
-            print("POST", url, "With", data)
-            param_string = str(param)
-            res = requests.post(url=url, data=data.encode("utf-8"))
-        else:
-            print("POST", url)
-            res = requests.post(url=url)
+        try:
+            if param is not None:
+                data = json.dumps(param, ensure_ascii=False)
+                print("POST", url, "With", data)
+                param_string = str(param)
+                res = requests.post(url=url, data=data.encode("utf-8"))
+            else:
+                print("POST", url)
+                res = requests.post(url=url)
 
-        usetime = time.time() - start
-        return self._resolve_response(res, testfunc, compares, "POST", param_string, usetime)
+                usetime = time.time() - start
+                return self._resolve_response(res, testfunc, compares, "POST", param_string, usetime)
+        except Exception as e:
+            print(e)
+            self._failed = self._failed + 1
+
 
     def _resolve_response(self, res, testfunc, compares, method, param, sec):
         if testfunc is None:
