@@ -66,6 +66,7 @@ class ApiTest(unittest.TestCase):
             print(ApiTest.passString("[Info] Pass"))
         except Exception as e:
             print(ApiTest.warningString("[Warning] Not Pass: %s" % e))
+        print("\n")
 
     @classmethod
     def warningString(cls, string):
