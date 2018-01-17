@@ -3,10 +3,12 @@
 
 import requests, json, unittest, urllib
 
+
 class ApiTest(unittest.TestCase):
     HOST_URL = "http://127.0.0.1:5000"
+    ECHOCOLOR_ENABEL = False
 
-    def get(self, api,  compares, testfunc=None, param=None):
+    def get(self, api, compares, testfunc=None, param=None):
         if testfunc is None:
             testfunc = self.assertEquals
         url = urllib.request.urljoin(ApiTest.HOST_URL, api)
@@ -38,39 +40,60 @@ class ApiTest(unittest.TestCase):
         else:
             content = res.content.decode(encoding='utf-8')
             if isinstance(content, str) and len(content) > 0:
-                #print("cccc" , type(content))
+                # print("cccc" , type(content))
                 data = json.loads(content)
                 ret = res.status_code, data["code"], data["msg"], data.get("data", None)
             else:
                 ret = 200, -1, "无效的返回格式", None
 
-        print('''
---------------------Api test result-----------------------
-\033[1;34m Api.url:\033[0m %s
-\033[1;34m Api.method:\033[0m %s
-\033[1;34m Network.code:\033[0m %d
-\033[1;34m Response.code:\033[0m %d
-\033[1;34m Response.msg:\033[0m %s
-\033[1;34m Response.data:\033[0m %s
-----------------------------------------------------------
-        ''' % (res.url, method, ret[0], ret[1], ret[2], ret[3]))
+        print("--------------------Api test result-----------------------")
+        print(ApiTest.titleString(" Api.url:") + " %s" % res.url)
+        print(ApiTest.titleString(" Api.method:") + " %s" % method)
+        print(ApiTest.titleString(" Network.code:") + " %d" % ret[0])
+        print(ApiTest.titleString(" Response.code:") + " %d" % ret[1])
+        print(ApiTest.titleString(" Response.msg:") + " %s" % ret[2])
+        data_string = str(ret[3])
+        if len(data_string) > 10:
+            data_string = data_string[:30] + " ..."
+        print(ApiTest.titleString(" Response.data:") + " %s" % data_string)
+        print("----------------------------------------------------------")
 
         try:
             if len(compares) >= 1:
-                testfunc(ret[0], compares[0]) #网络code
+                testfunc(ret[0], compares[0])  # 网络code
             if len(compares) >= 2:
-                testfunc(ret[1], compares[1]) #自定义api code
-            print("\033[1;32m[Info] Pass\033[0m\n")
+                testfunc(ret[1], compares[1])  # 自定义api code
+            print(ApiTest.passString("[Info] Pass"))
         except Exception as e:
-            print("\033[1;31m[Warning] Not Pass:", e, "\033[0m\n")
+            print(ApiTest.warningString("[Warning] Not Pass: %s" % e))
+
+    @classmethod
+    def warningString(cls, string):
+        if cls.ECHOCOLOR_ENABEL:
+            return "\033[1;31m" + string + "\033[0m"
+        else:
+            return string
+
+    @classmethod
+    def titleString(cls, string):
+        if cls.ECHOCOLOR_ENABEL:
+            return "\033[1;34m" + string + "\033[0m"
+        else:
+            return string
+
+    @classmethod
+    def passString(cls, string):
+        if cls.ECHOCOLOR_ENABEL:
+            return "\033[1;32m" + string + "\033[0m"
+        else:
+            return string
 
 
 
-'''
 if "__main__" == __name__:
     ApiTest.HOST_URL = "http://www.patchlion.cn:5000"
 
     apitest = ApiTest()
     apitest.post(api="/classifies", compares=[200, 0])
     apitest.post(api="/cacheversion", testfunc=apitest.assertEquals, compares=[200, 0])
-'''
+
