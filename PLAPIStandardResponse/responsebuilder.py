@@ -7,19 +7,18 @@ class ApiResponseBuilder(object):
     errorStringFunc = None
 
     @classmethod
-    def build(cls, code, msg=None, msgExt=None, data=None):
+    def build(cls, code, msgExt=None, data=None):
         response = {}
         response["code"] = code
-        if msg is None:
-            if cls.errorStringFunc is not None:
-                response["msg"] = cls.errorStringFunc(code)
-            else:
-                response["msg"] = ""
 
-            if msgExt is not None:
-                response["msg"] = response[msg] + ("%s" % msgExt)
+        if cls.errorStringFunc is not None:
+            response["msg"] = cls.errorStringFunc(code)
         else:
-            response["msg"] = msg
+            response["msg"] = "未知状态"
+
+        if msgExt is not None:
+            response["msg"] = response["msg"] + ("%s" % msgExt)
+
         response["data"] = data
 
         return json.dumps(response, ensure_ascii=False)
