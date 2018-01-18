@@ -137,24 +137,25 @@ class DBInstance(object):
     '''添加或更新记录'''
     @classmethod
     def addOrRecord(cls, records):
-        size = 0
+        return cls.addRecord(records)
 
+    '''添加或更新记录'''
+    @classmethod
+    def addRecord(cls, records):
         try:
             if isinstance(records, list):
                 for record in records:
                     cls.session().merge(record)
-                size = len(records)
+                cls.session().commit()
+                return len(records)
             else:
                 cls.session().merge(records)
-                size = 1
-            cls.session().commit()
+                cls.session().commit()
+                return 1
         except Exception as e:
-            cls.logger.warn("DBInstance.addOrRecord: %s" % e)
-            size = 0
+            cls.logger.warn("DBInstance.addRecord: %s" % e)
             cls.session().rollback()
-
-        cls.logger.debug("Total {0} record added or updated!".format(size))
-        return size
+            return 0
 
     '''删除纪录'''
     @classmethod
