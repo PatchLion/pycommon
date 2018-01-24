@@ -27,3 +27,4 @@ class ApiResponseBuilder(object):
         response["data"] = data
 
         return json.dumps(response, ensure_ascii=False)
+

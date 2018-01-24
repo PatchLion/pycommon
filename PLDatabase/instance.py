@@ -5,7 +5,7 @@ import json, os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from pycommon.PLLogger import createLogger
+from PLLogger import createLogger
 
 TableBase = declarative_base()
 
