@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from PLDatabase import TableBase
+from pycommon.PLDatabase import TableBase
 from sqlalchemy import *
-from PLCommons.functions import uuid64
+from pycommon.PLCommons.functions import uuid64
 
 
 #统计权限Keys

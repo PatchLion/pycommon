@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from flask import *
-from PLDatabase import DBInstance
-from PLLogger import buildLogger
-from PLArgsChecker import ArgsChecker
-from PLAPIStandardResponse import flaskResponse
-from PLAPIStandardResponse import ApiResponseBuilder
+from pycommon.PLDatabase import DBInstance
+from pycommon.PLLogger import buildLogger
+from pycommon.PLArgsChecker import ArgsChecker
+from pycommon.PLAPIStandardResponse import flaskResponse
+from pycommon.PLAPIStandardResponse import ApiResponseBuilder
 from .tables import *
 import time, logging
 
