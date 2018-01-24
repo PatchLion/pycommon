@@ -41,7 +41,7 @@ def doViewStatistics(request, args):
         if key not in keys:
             return ApiResponseBuilder.build(code=-1, msgExt="无效的授权key")
 
-        vs = ViewStatistics(keyvalue=key,  page=page, title=title, appversion=appversion, clientid=clientid, datetime=time.time())
+        vs = ViewStatistics(keyvalue=key,  page=page, title=title, appversion=appversion, clientid=clientid)
 
         size = DBInstance.addRecord(vs)
         if size > 0:
@@ -59,10 +59,12 @@ def doEventStatistics(request, args):
     if args is not None:
         checker = ArgsChecker(args)
         key = checker.addStringChecker("key", is_req=True)# 页面路径
-        action = checker.addStringChecker("action", is_req=True)# 页面路径
-        label = checker.addStringChecker("label", is_req=True)# 页面标题
+        category = checker.addStringChecker("category", is_req=True)# 事件类型
+        action = checker.addStringChecker("action", is_req=True)# 事件活动
+        label = checker.addStringChecker("label", is_req=True)# 标签备注
         appversion = checker.addStringChecker("appversion", is_req=True)# app版本
         clientid = checker.addStringChecker("clientid", is_req=True)# 客户端id
+
 
         successed, message = checker.checkResult()
 
@@ -73,10 +75,10 @@ def doEventStatistics(request, args):
         if key not in keys:
             return ApiResponseBuilder.build(code=-1, msgExt="无效的授权key")
 
-        es = EventStatistics(keyvalue=key, action=action, label=label, appversion=appversion, clientid=clientid, datetime=time.time())
+        es = EventStatistics(keyvalue=key, category=category, action=action, label=label, appversion=appversion, clientid=clientid)
 
         size = DBInstance.addRecord(es)
         if size > 0:
             return ApiResponseBuilder.build(code=0)
         else:
-            return ApiResponseBuilder.build(code=-1, msgExt="添加时间统计失败")
+            return ApiResponseBuilder.build(code=-1, msgExt="添加事件统计失败")

@@ -4,7 +4,7 @@
 from pycommon.PLDatabase import TableBase
 from sqlalchemy import *
 from pycommon.PLCommons.functions import uuid64
-
+import time
 
 #统计权限Keys
 class StatisticsKeys(TableBase):
@@ -24,7 +24,7 @@ class ViewStatistics(TableBase):
     title = Column(String(256), nullable=False) #页面标题
     appversion = Column(String(24), nullable=False) #app版本
     clientid = Column(String(24), nullable=False) #客户端id
-    datetime = Column(INTEGER(), nullable=False) #日期
+    datetime = Column(INTEGER(), nullable=False, default=time.time()) #日期
 
 
 #事件统计表
@@ -38,4 +38,4 @@ class EventStatistics(TableBase):
     label = Column(String(256), nullable=True, default="") #标签备注
     appversion = Column(String(24), nullable=False) #app版本
     clientid = Column(String(24), nullable=False) #客户端id
-    datetime = Column(INTEGER(), nullable=False) #日期
+    datetime = Column(INTEGER(), nullable=False, default=time.time()) #日期
