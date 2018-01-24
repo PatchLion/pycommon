@@ -22,8 +22,8 @@ class ViewStatistics(TableBase):
     keyvalue = Column(String(64), nullable=False, default=uuid64()) #key
     page = Column(String(2048), nullable=False) #页面路径
     title = Column(String(256), nullable=False) #页面标题
-    appversion = Column(String(24), nullable=False) #app版本
-    clientid = Column(String(24), nullable=False) #客户端id
+    appversion = Column(String(64), nullable=False) #app版本
+    clientid = Column(String(64), nullable=False) #客户端id
     datetime = Column(INTEGER(), nullable=False, default=time.time()) #日期
 
 
@@ -36,6 +36,6 @@ class EventStatistics(TableBase):
     category = Column(String(256), nullable=False) #事件类型
     action = Column(String(256), nullable=False) #事件活动
     label = Column(String(256), nullable=True, default="") #标签备注
-    appversion = Column(String(24), nullable=False) #app版本
-    clientid = Column(String(24), nullable=False) #客户端id
+    appversion = Column(String(64), nullable=False) #app版本
+    clientid = Column(String(64), nullable=False) #客户端id
     datetime = Column(INTEGER(), nullable=False, default=time.time()) #日期
