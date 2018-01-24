@@ -18,7 +18,7 @@ def runStatisticsApp(host="0.0.0.0", debug=True,  port=13000):
     keys = [r.keyvalue for r in DBInstance.records(StatisticsKeys)]
     app.run(host=host, debug=debug, port=port)
 
-@app.route("/statistics/view", methods=["GET"])
+@app.route("/statistics/view", methods=["GET", "POST"])
 def viewStatistics():
     return doViewStatistics(request, None)
 
@@ -50,7 +50,7 @@ def doViewStatistics(request, args):
             return ApiResponseBuilder.build(code=-1, msgExt="添加页面统计失败")
 
 
-@app.route("/statistics/event", methods=["GET"])
+@app.route("/statistics/event", methods=["GET", "POST"])
 def eventStatistics():
     return doEventStatistics(request, None)
 
