@@ -41,7 +41,7 @@ def doViewStatistics(request, args):
         if key not in keys:
             return ApiResponseBuilder.build(code=-1, msgExt="无效的授权key")
 
-        vs = ViewStatistics( page=page, title=title, appversion=appversion, clientid=clientid, datetime=time.time())
+        vs = ViewStatistics(keyvalue=key,  page=page, title=title, appversion=appversion, clientid=clientid, datetime=time.time())
 
         size = DBInstance.addRecord(vs)
         if size > 0:
@@ -73,7 +73,7 @@ def doEventStatistics(request, args):
         if key not in keys:
             return ApiResponseBuilder.build(code=-1, msgExt="无效的授权key")
 
-        es = EventStatistics(action=action, label=label, appversion=appversion, clientid=clientid, datetime=time.time())
+        es = EventStatistics(keyvalue=key, action=action, label=label, appversion=appversion, clientid=clientid, datetime=time.time())
 
         size = DBInstance.addRecord(es)
         if size > 0:
