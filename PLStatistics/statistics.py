@@ -47,6 +47,7 @@ def doViewStatistics(request, args):
         if size > 0:
             return ApiResponseBuilder.build(code=0)
         else:
+            app.logger.warn("添加页面统计失败")
             return ApiResponseBuilder.build(code=-1, msgExt="添加页面统计失败")
 
 
@@ -81,4 +82,5 @@ def doEventStatistics(request, args):
         if size > 0:
             return ApiResponseBuilder.build(code=0)
         else:
+            app.logger.warn("添加事件统计失败")
             return ApiResponseBuilder.build(code=-1, msgExt="添加事件统计失败")

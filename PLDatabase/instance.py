@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json, os
+import json, os, logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -16,57 +16,65 @@ TableBase = declarative_base()
 # mssql: mssql+pymssql://sa:Root123456@127.0.0.1:2796/BZQLYKT?charset=utf8
 
 class DBInstance(object):
-    contract_session = None
-    contract_engine = None
-    connection_string = ""
-    logger = createLogger("datebase")
+    LOGLEVEL = logging.DEBUG #日志级别
+    ECHO = True #是否打印数据详情
+    _contract_session = None
+    _contract_engine = None
+    _logger = None
+    _connection_string = ""
+
+    @classmethod
+    def logger(cls):
+        if cls._logger is None:
+            cls._logger = createLogger("datebase", level=cls.LOGLEVEL)
+        return cls._logger
 
     @classmethod
     def resetConnection(cls, connection):
-        DBInstance.logger.debug("设置连接字符串:"+connection)
-        cls.connection_string = connection
-        cls.resetSession()
+        DBInstance.logger().debug("设置连接字符串:"+connection)
+        cls._connection_string = connection
+        cls._resetSession()
 
     @classmethod
-    def resetSession(cls):
-        cls.contract_session = None
-        cls.contract_engine = None
+    def _resetSession(cls):
+        cls._contract_session = None
+        cls._contract_engine = None
 
     @classmethod
     def engine(cls):
-        if cls.contract_engine is None:
-            cls.logger.debug("Database engine init: " + cls.connection_string)
-            cls.contract_engine = create_engine(cls.connection_string, echo=False)
-        return cls.contract_engine
+        if cls._contract_engine is None:
+            DBInstance.logger().debug("Database engine init: " + cls._connection_string)
+            cls._contract_engine = create_engine(cls._connection_string, echo=False)
+        return cls._contract_engine
 
     @classmethod
     def session(cls):
-        if cls.contract_session is None:
-            cls.logger.debug("Database session init......")
+        if cls._contract_session is None:
+            DBInstance.logger().debug("Database session init......")
             DBSession = sessionmaker(bind=cls.engine())
-            cls.contract_session = DBSession()
-        return cls.contract_session
+            cls._contract_session = DBSession()
+        return cls._contract_session
 
     @classmethod
     def initTables(cls):
-        cls.logger.debug("Init tables......")
+        DBInstance.logger().debug("Init tables......")
         TableBase.metadata.create_all(bind=cls.engine())
-        cls.logger.debug("Init tables finished!")
+        DBInstance.logger().debug("Init tables finished!")
 
     @classmethod
     def dropTables(cls):
-        cls.logger.debug("Drop tables......")
+        DBInstance.logger().debug("Drop tables......")
         TableBase.metadata.drop_all(bind=cls.engine())
-        cls.logger.debug("Drop tables finished!")
+        DBInstance.logger().debug("Drop tables finished!")
 
     @classmethod
     def init_db(cls, engine):
-        cls.logger.debug("init db!")
+        DBInstance.logger().debug("init db!")
         TableBase.metadata.create_all(engine)
 
     @classmethod
     def drop_db(cls, engine):
-        cls.logger.debug("drop db!")
+        DBInstance.logger().debug("drop db!")
         TableBase.metadata.drop_all(engine)
 
     # 返回session, engine
@@ -99,7 +107,7 @@ class DBInstance(object):
             # print("all finish")
             return rs
         except Exception as e:
-            cls.logger.warn("DBInstance.records: %s" % e)
+            DBInstance.logger().warn("DBInstance.records: %s" % e)
             return []
 
     '''更新记录'''
@@ -107,11 +115,11 @@ class DBInstance(object):
     def updateRecords(cls, type, cond, value):
         try:
             size = cls.session().query(type).filter(cond).update(value)
-            print("update size--->", size)
+            DBInstance.logger().warn("update size---> %d" % size)
             cls.session().commit()
             return size
         except Exception as e:
-            cls.logger.warn("DBInstance.updateRecords: %s " % e)
+            DBInstance.logger().warn("DBInstance.updateRecords: %s " % e)
             return 0
 
 
@@ -121,7 +129,7 @@ class DBInstance(object):
         try:
             return cls.session().query(src_type, dest_type).filter(cond).all()
         except Exception as e:
-            cls.logger.warn("DBInstance.unionRecords: %s " % e)
+            DBInstance.logger().warn("DBInstance.unionRecords: %s " % e)
             return []
 
     '''记录数量'''
@@ -153,7 +161,7 @@ class DBInstance(object):
                 cls.session().commit()
                 return 1
         except Exception as e:
-            cls.logger.warn("DBInstance.addRecord: %s" % e)
+            DBInstance.logger().warn("DBInstance.addRecord: %s" % e)
             cls.session().rollback()
             return 0
 
@@ -168,8 +176,8 @@ class DBInstance(object):
                 size = cls.session().query(t).filter(conds).delete(synchronize_session=False)
             cls.session().commit()
         except Exception as e:
-            cls.logger.warn("DBInstance.removeRecords: %s" % e)
+            DBInstance.logger().warn("DBInstance.removeRecords: %s" % e)
             size = 0
             cls.session().rollback()
-        cls.logger.debug("Total {0} record removed! [{1}]".format(size, type(t)))
+        DBInstance.logger().debug("Total {0} record removed! [{1}]".format(size, type(t)))
         return size
