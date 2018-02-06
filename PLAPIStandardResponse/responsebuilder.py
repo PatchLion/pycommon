@@ -18,8 +18,6 @@ class ApiResponseBuilder(object):
 
         if cls.errorStringFunc is not None:
             response["msg"] = cls.errorStringFunc(code)
-        else:
-            response["msg"] = "未知状态 "
 
         if msgExt is not None:
             response["msg"] = response["msg"] + ("%s" % msgExt)
