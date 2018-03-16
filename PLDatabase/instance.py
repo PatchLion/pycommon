@@ -107,6 +107,7 @@ class DBInstance(object):
             # print("all finish")
             return rs
         except Exception as e:
+            cls.session().rollback()
             DBInstance.logger().warn("DBInstance.records: %s" % e)
             return []
 
@@ -119,6 +120,7 @@ class DBInstance(object):
             cls.session().commit()
             return size
         except Exception as e:
+            cls.session().rollback()
             DBInstance.logger().warn("DBInstance.updateRecords: %s " % e)
             return 0
 
@@ -129,6 +131,7 @@ class DBInstance(object):
         try:
             return cls.session().query(src_type, dest_type).filter(cond).all()
         except Exception as e:
+            cls.session().rollback()
             DBInstance.logger().warn("DBInstance.unionRecords: %s " % e)
             return []
 
@@ -161,8 +164,8 @@ class DBInstance(object):
                 cls.session().commit()
                 return 1
         except Exception as e:
-            DBInstance.logger().warn("DBInstance.addRecord: %s" % e)
             cls.session().rollback()
+            DBInstance.logger().warn("DBInstance.addRecord: %s" % e)
             return 0
 
     '''删除纪录'''
@@ -176,8 +179,8 @@ class DBInstance(object):
                 size = cls.session().query(t).filter(conds).delete(synchronize_session=False)
             cls.session().commit()
         except Exception as e:
+            cls.session().rollback()
             DBInstance.logger().warn("DBInstance.removeRecords: %s" % e)
             size = 0
-            cls.session().rollback()
         DBInstance.logger().debug("Total {0} record removed! [{1}]".format(size, type(t)))
         return size
