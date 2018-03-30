@@ -5,7 +5,8 @@ import json, os, logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from pycommon.PLLogger import createLogger
+from logger import createLogger
+from threading import current_thread
 
 TableBase = declarative_base()
 
@@ -16,9 +17,9 @@ TableBase = declarative_base()
 # mssql: mssql+pymssql://sa:Root123456@127.0.0.1:2796/BZQLYKT?charset=utf8
 
 class DBInstance(object):
-    LOGLEVEL = logging.DEBUG #日志级别
-    ECHO = True #是否打印数据详情
-    _contract_session = None
+    LOGLEVEL = logging.WARNING #日志级别
+    ECHO = False #是否打印数据详情
+    _contract_session = {}
     _contract_engine = None
     _logger = None
     _connection_string = ""
@@ -37,23 +38,26 @@ class DBInstance(object):
 
     @classmethod
     def resetSession(cls):
-        cls._contract_session = None
+        thread = current_thread().getName()
+        if thread in cls._contract_session.keys():
+            cls._contract_session[thread] = None
         cls._contract_engine = None
 
     @classmethod
     def engine(cls):
         if cls._contract_engine is None:
             DBInstance.logger().debug("Database engine init: " + cls._connection_string)
-            cls._contract_engine = create_engine(cls._connection_string, echo=False)
+            cls._contract_engine = create_engine(cls._connection_string, echo=cls.ECHO)
         return cls._contract_engine
 
     @classmethod
     def session(cls):
-        if cls._contract_session is None:
-            DBInstance.logger().debug("Database session init......")
+        thread = current_thread().getName()
+        if thread not in cls._contract_session.keys():
+            DBInstance.logger().debug("Database session init......（thread %s）" % thread)
             DBSession = sessionmaker(bind=cls.engine())
-            cls._contract_session = DBSession()
-        return cls._contract_session
+            cls._contract_session[thread] = DBSession()
+        return cls._contract_session[thread]
 
     @classmethod
     def initTables(cls):
@@ -80,7 +84,7 @@ class DBInstance(object):
     # 返回session, engine
     @classmethod
     def createEngine(cls, dbstring, reset=False):
-        engine = create_engine(dbstring, echo=True)
+        engine = create_engine(dbstring, echo=cls.ECHO)
         DBSession = sessionmaker(bind=engine)
         if reset:
             cls.init_db(engine)
@@ -88,7 +92,7 @@ class DBInstance(object):
 
     '''查询记录'''
     @classmethod
-    def records(cls, type, cond=None, orderby=None):
+    def records(cls, type, cond=None, orderby=None, limit=-1):
         try:
             # DBLogger.logger().warn("Call records!")
             query = DBInstance.session().query(type)
